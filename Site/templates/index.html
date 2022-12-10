@@ -1,0 +1,17 @@
+<!-- 
+    Created on : 2017-10-10, 11:00:00
+    Author     : Gökalp Coşgun
+
+    Now create a template for the index page. It will contain a search bar.
+    The search bar will be a form with a numerical input and a submit button.
+ -->
+{% extends "base.html" %} {% block title %} Allergen Detector {% endblock %}  {% block content %}
+
+
+<form action="/search" method="POST">
+    <input type="number" name="search" placeholder="Search for a product">
+    <input type="submit" value="Search">
+</form>
+
+
+{% endblock %}
