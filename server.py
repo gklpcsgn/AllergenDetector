@@ -18,7 +18,7 @@ import socket
 
 
 serv = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-serv.bind(("", 1234))
+serv.bind(("", 1212))
 print("listening")
 serv.listen(5)
 while True:
@@ -30,12 +30,12 @@ while True:
         data_user = data_user.decode('utf-8')
         from_client += data_user
         print ("From client : ",from_client)
-        print("To client : ","Hello from server")
-        message = "Hello from server"
-        message = message.encode('utf-8')
-        conn.send(message)
     conn.close()
     print ('client disconnected')
+
+    # if ctrl+c is pressed end the loop
+    if KeyboardInterrupt:
+        break
     
 
 
