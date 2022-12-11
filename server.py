@@ -11,9 +11,6 @@ try:
 except Exception as e:
     print('Connection Error.')
 
-
-
-
 serv = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 serv.bind(("", 1214))
 print("listening")
@@ -33,12 +30,13 @@ while True:
         food = pd.read_sql_query('select * from food where barcodeno = ' + str(barcodeno),con=engine)
         allergen_id = pd.read_sql_query('select * from food_contains where barcodeno = ' + str(barcodeno),con=engine)['allergenid'].values
         allergen_names = []
+
         for i in allergen_id:
             allergen_names.append(pd.read_sql_query('select * from allergen where allergenid = ' + str(i),con=engine)['allergenname'].values[0])
+
         nutritions = pd.read_sql_query('select * from nutrition where barcodeno= ' + str(barcodeno),con=engine).drop(columns = ["barcodeno"])
-        result = food.copy()
-        result["allergenname"] = str(allergen_names)
-        result["nutritions"] = nutritions.T[0].to_json()
+        result = pd.concat([food,nutritions], axis=1)
+        result["allergennames"] = str(allergen_names)
         # convert to json
         test_data = result.to_json(orient='records')
         print(test_data)
