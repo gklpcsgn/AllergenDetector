@@ -35,9 +35,11 @@ def get_data_from_db_barcodeno(barcodeno):
 
 def get_data_from_db_foodname(foodname):
     # select from allergen table
-    food = pd.read_sql_query('select * from food where foodname = \'' + foodname + "\'" ,con=engine)
-    barcodeno = food['barcodeno'].values[0]
-    test_data = get_data_from_db_barcodeno(barcodeno)
+    query = 'select * from food where lower(foodname) like \'%%' + foodname + "%%\'"
+    print(query)
+    food = pd.read_sql_query(query ,con=engine)[["barcodeno","brand","foodname"]]
+    food.head(10)
+    test_data = food.to_json(orient='records')
     return test_data
 
 
@@ -65,7 +67,7 @@ while True:
                 print('Cannot get data from database.')
                 test_data = "ERROR"
         else:
-            foodname = data_user
+            foodname = data_user[1:]
             try:
                 test_data = get_data_from_db_foodname(foodname)
                 if test_data == "[]":
