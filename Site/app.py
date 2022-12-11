@@ -30,13 +30,13 @@ def search():
             return render_template("index.html")
         barkod = request.form['search']
         if not barkod.isdigit():
-                flash('Barkod yalnızca sayı içerebilir.', category='error') 
-                return render_template("index.html")
+            flash('Barkod yalnızca sayı içerebilir.', category='error') 
+            return render_template("index.html")
         message = barkod
         message = message.encode('utf-8')
         client.send(message)
         
-        # TODO : replace test=barkod with from_server
+        # TODO : add ERROR handling
         from_server = client.recv(4096)
         from_server = from_server.decode('utf-8')
         print("From server : ",from_server)
