@@ -36,7 +36,8 @@ def search():
             if not barkod.isdigit():
                 flash('Barkod yalnızca sayı içerebilir.', category='error') 
                 return render_template("index.html")
-            message = barkod
+            message = "b"
+            message += barkod
             message = message.encode('utf-8')
             client.send(message)
             
@@ -44,6 +45,11 @@ def search():
             from_server = client.recv(4096)
             from_server = from_server.decode('utf-8')
             print("From server : ",from_server)
+
+            if from_server == "ERROR":
+                flash('Barkod bulunamadı.', category='error')
+                return render_template("index.html")
+
             # return render_template('test.html', test=from_server)
             data = pd.read_json(from_server)
         return render_template('result.html', barcodeno=data['barcodeno'][0], foodname=data['foodname'][0], brand=data['brand'][0], weightvolume=data['weightvolume'][0], ingredients=data['ingredients'][0], fat=data['fat'][0], protein=data['protein'][0], carbs=data['carbs'][0], calorie=data['calorie'][0], allergennames=data['allergennames'][0])
