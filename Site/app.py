@@ -211,11 +211,11 @@ def signin():
                 flash('Kullanıcı adı veya şifre hatalı.', category='error')
                 return render_template("signin.html")
 
-        user_data = pd.read_json(from_server)
-        #  (self,userid , personname,personsurname,username,telephoneno=None,height=None,weight=None)
-        user = User(user_data['userid'][0], user_data['personname'][0], user_data['personsurname'][0], user_data['e_mail'][0], user_data['telephoneno'][0], user_data['height'][0], user_data['weight'][0])
-        
-        login_user(user)
+            user_data = pd.read_json(from_server)
+            #  (self,userid , personname,personsurname,username,telephoneno=None,height=None,weight=None)
+            user = User(user_data['userid'][0], user_data['personname'][0], user_data['personsurname'][0], user_data['e_mail'][0], user_data['telephoneno'][0], user_data['height'][0], user_data['weight'][0])
+            
+            login_user(user)
 
             return render_template('test.html', test=user)
         else:
