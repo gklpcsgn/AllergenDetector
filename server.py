@@ -3,6 +3,8 @@ import pandasql as ps
 import sqlalchemy as sal
 from sqlalchemy import create_engine
 import socket
+import json
+
 
 
 
@@ -42,6 +44,12 @@ def get_data_from_db_foodname(foodname):
     test_data = food.to_json(orient='records')
     return test_data
 
+def check_user_from_database(username,password):
+    query = 'select * from person where e_mail = \'' + username + "\' and saltedpassword = \'" + password + "\'"
+    print(query)
+    user = pd.read_sql_query(query ,con=engine)
+    test_data = user.to_json(orient='records')
+    return test_data
 
 serv = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 serv.bind(("", 1214))
@@ -66,6 +74,22 @@ while True:
             except Exception as e:
                 print('Cannot get data from database.')
                 test_data = "ERROR"
+        
+        
+        elif data_user.startswith("u"):
+            # data is a username and password json
+            data = json.loads(data_user[1:])
+            username = data["username"]
+            password = data["password"]
+            try:
+                test_data = check_user_from_database(username,password)
+                if test_data == "[]":
+                    raise Exception
+            except Exception as e:
+                print('Cannot get data from database.')
+                test_data = "ERROR"
+
+
         else:
             foodname = data_user[1:]
             try:

@@ -17,13 +17,13 @@
   </head>
 
   <body class="text-center">
-    <form class="form-signin">
+    <form class="form-signin" method="POST" action="/signin">
       <img class="mb-4" src="https://getbootstrap.com/docs/4.0/assets/brand/bootstrap-solid.svg" alt="" width="72" height="72">
       <h1 class="h3 mb-3 font-weight-normal">Lütfen Giriş Yapın</h1>
-      <label for="inputEmail" class="sr-only">E-Posta</label>
-      <input type="email" id="inputEmail" class="form-control" placeholder="E-Posta" required autofocus>
+      <label for="inputEmail"  class="sr-only">E-Posta</label>
+      <input type="" id="inputEmail" name="username" class="form-control" placeholder="E-Posta" required autofocus>
       <label for="inputPassword" class="sr-only">Şifre</label>
-      <input type="password" id="inputPassword" class="form-control" placeholder="Şifre" required>
+      <input type="password" id="inputPassword" name="password" class="form-control" placeholder="Şifre" required>
       <div class="checkbox mb-3">
         <label>
           <input type="checkbox" value="remember-me"> Beni Hatırla
