@@ -51,6 +51,13 @@ def check_user_from_database(username,password):
     test_data = user.to_json(orient='records')
     return test_data
 
+def get_data_from_db_userid(userid):
+    query = 'select * from person where userid = ' + str(userid)
+    print(query)
+    user = pd.read_sql_query(query ,con=engine)
+    test_data = user.to_json(orient='records')
+    return test_data
+
 serv = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 serv.bind(("", 1214))
 print("listening")
@@ -87,8 +94,18 @@ while True:
                     raise Exception
             except Exception as e:
                 print('Cannot get data from database.')
-                test_data = "ERROR"
+                test_data = "ERROR_SEARCH_BY_BARCODE"
 
+        elif data_user.startswith("a"):
+            # data is a userid
+            userid = data_user[1:]
+            try:
+                test_data = get_data_from_db_userid(userid)
+                if test_data == "[]":
+                    raise Exception
+            except Exception as e:
+                print('Cannot get data from database.')
+                test_data = "ERROR_AUTHENTICATION"
 
         else:
             foodname = data_user[1:]
@@ -98,7 +115,7 @@ while True:
                     raise Exception
             except Exception as e:
                 print('Cannot get data from database.')
-                test_data = "ERROR"
+                test_data = "ERROR_SEARCH_BY_NAME"
 
         test_data = test_data.encode('utf-8')
         conn.send(test_data)
