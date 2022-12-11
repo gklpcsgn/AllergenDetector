@@ -1,0 +1,22 @@
+{% extends "base.html" %} {% block title %} Allergen Detector {% endblock %}  {% block content %}
+<h1>Admin Panel</h1>
+
+{{ allAllergens }}
+
+<h2>Alerjen Ekle</h2>
+<form action="/admin/addallergen" method="POST">
+    <input type="text" name="allergenname" placeholder="Alerjen Adı">
+    <input type="submit" value="Ekle">
+</form>
+<h2>Ürün Ekle</h2>
+<form action="/admin/addproduct" method="POST">
+    <input type="text" name="productname" placeholder="Ürün Adı">
+    <input type="text" name="productbarcode" placeholder="Ürün Barkodu">
+    <select multiple name="allergenid">
+        {% for allergen in allAllergens['allergenid'] %}
+            <option value="{{ allAllergens[allAllergens[allergenid] == allergen]["allergenid"] }}">{{ allAllergens[allAllergens[allergenid] == allergen]["allergenname"] }}</option>
+        {% endfor %}
+    </select>
+
+</form>
+{% endblock %}
