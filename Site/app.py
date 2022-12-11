@@ -11,6 +11,13 @@ client = None
 
 isDebug = False
 
+try:
+    f = open("debugEnabled", "r")
+    isDebug = True
+    f.close()
+except:
+    isDebug = False
+
 class User:
     def __init__(self,userid , personname,personsurname,username,telephoneno=None,height=None,weight=None):
         self.username = username
@@ -31,14 +38,17 @@ class User:
 @app.route("/", methods=['GET', 'POST'])
 def home():
     global client
-    if client is None:
-        try:
-            client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            client.connect((socket.gethostname(), 1214))
-            print('Connected to server.')
-        except Exception as e:
-            print("Cannot connect to server.")
-            flash('Connection Error.', category='error')
+    if not isDebug:
+        if client is None:
+            try:
+                client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                client.connect((socket.gethostname(), 1214))
+                print('Connected to server.')
+            except Exception as e:
+                print("Cannot connect to server.")
+                flash('Connection Error.', category='error')
+    else:
+        flash('Debug mode enabled.')
     return render_template('index.html')
 
 @app.route("/search", methods=['POST'])
@@ -122,50 +132,58 @@ def searchbyname():
 def signin():
     global client
     if request.method == 'POST':
-        session.pop('username', None)
-        if client is None:
-            flash('Connection Error.', category='error')
-            print("Cannot connect to server.")
-            return render_template("index.html")
-        # send username and password to server
-        # if server returns true, redirect to profile page
-        # else, show error message
-        username = request.form['username']
-        password = request.form['password'] 
-        if username == "admin" and password == "admin":
-            return render_template('admin.html')
+        if not isDebug:
 
-        # create a json object to send to server
-        data = {}
-        data['username'] = username
-        data['password'] = str(password)
-        # send this as string to server
-        message = "u"
-        message += json.dumps(data)
-        message = message.encode('utf-8')
-        client.send(message)
+            session.pop('username', None)
+            if client is None:
+                flash('Connection Error.', category='error')
+                print("Cannot connect to server.")
+                return render_template("index.html")
+            # send username and password to server
+            # if server returns true, redirect to profile page
+            # else, show error message
+            username = request.form['username']
+            password = request.form['password'] 
+            if username == "admin" and password == "admin":
+                return render_template('admin.html')
 
-        # TODO : add ERROR handling
-        from_server = client.recv(4096)
-        from_server = from_server.decode('utf-8')
-        print("From server : ",from_server)
+            # create a json object to send to server
+            data = {}
+            data['username'] = username
+            data['password'] = str(password)
+            # send this as string to server
+            message = "u"
+            message += json.dumps(data)
+            message = message.encode('utf-8')
+            client.send(message)
 
-        
+            # TODO : add ERROR handling
+            from_server = client.recv(4096)
+            from_server = from_server.decode('utf-8')
+            print("From server : ",from_server)
 
-        
+            
 
-        if from_server == "ERROR":
-            flash('Kullanıcı adı veya şifre hatalı.', category='error')
-            return render_template("signin.html")
+            
 
-        user_data = pd.read_json(from_server)
-        #  (self,userid , personname,personsurname,username,telephoneno=None,height=None,weight=None)
-        user = User(user_data['userid'][0], user_data['personname'][0], user_data['personsurname'][0], user_data['e_mail'][0], user_data['telephoneno'][0], user_data['height'][0], user_data['weight'][0])
-        
-        session["user_id"] = str(user.userid)
-        session["user_name"] = user.username
+            if from_server == "ERROR":
+                flash('Kullanıcı adı veya şifre hatalı.', category='error')
+                return render_template("signin.html")
 
-        return render_template('test.html', test=user)
+            user_data = pd.read_json(from_server)
+            #  (self,userid , personname,personsurname,username,telephoneno=None,height=None,weight=None)
+            user = User(user_data['userid'][0], user_data['personname'][0], user_data['personsurname'][0], user_data['e_mail'][0], user_data['telephoneno'][0], user_data['height'][0], user_data['weight'][0])
+            
+            session["user_id"] = str(user.userid)
+            session["user_name"] = user.username
+
+            return render_template('test.html', test=user)
+        else:
+            user_data = pd.read_json('[{"userid":31,"personname":"İsmail","personsurname":"Öz","username":"ioz","telephoneno":null,"height":null,"weight":null}]')
+            user = User(user_data['userid'][0], user_data['personname'][0], user_data['personsurname'][0], user_data['username'][0], user_data['telephoneno'][0], user_data['height'][0], user_data['weight'][0])
+            session["user_id"] = str(user.userid)
+            session["user_name"] = user.username
+            return render_template('test.html', test=user)
         
 
     return render_template('signin.html')
@@ -208,6 +226,16 @@ def item(barcodeno):
         allergens = data["allergennames"][0].replace("'","\"")
         allergens = json.loads(allergens)
         return render_template('result.html', barcodeno=data['barcodeno'][0], foodname=data['foodname'][0], brand=data['brand'][0], weightvolume=data['weightvolume'][0], ingredients=data['ingredients'][0], fat=data['fat'][0], protein=data['protein'][0], carbs=data['carbs'][0], calorie=data['calorie'][0], allergens=allergens)
+
+@app.route("/admin")
+def admin():
+    # TODO : check if user is admin
+    allAllergens = '[{"allergenid":1,"allergenname":"gluten"},{"allergenid":2,"allergenname":"findik"}]'
+    allAllergens = pd.read_json(allAllergens)
+    # allAllergens = getAllAllergens()
+    # TODO : get all allergens from server
+    return render_template('admin.html',allAllergens=allAllergens)
+
 
 if __name__ == "__main__":
     app.run(debug=True,port=8080)
