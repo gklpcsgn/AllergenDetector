@@ -1,1 +1,14 @@
-[{"barcodeno":1,"foodname":"ekmek","brand":"firinci","weightvolume":200,"ingredients":"un","allergenname":"['gluten', 'findik']","nutritions":"{\"fat\":20,\"protein\":10,\"carbs\":75,\"calorie\":300}"}]
+[
+    {
+        "barcodeno": 1,
+        "foodname": "ekmek",
+        "brand": "firinci",
+        "weightvolume": 200,
+        "ingredients": "un",
+        "fat": 20,
+        "protein": 10,
+        "carbs": 75,
+        "calorie": 300,
+        "allergennames": "['gluten', 'findik']"
+    }
+]

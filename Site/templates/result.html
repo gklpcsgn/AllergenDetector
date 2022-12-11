@@ -8,13 +8,21 @@
 {% extends "base.html" %} {% block title %} Allergen Detector {% endblock %}  {% block content %}
 
 
-<h1 class="cover-heading">Alerjenleri Bul</h1>
-        <p class="lead">Aradığın ürünün barkodunu aşağıya girerek içerisindeki alerjen maddeleri kolaylıkla bulabilirsin!</p>
+<h1 class="cover-heading">{{ brand }} - {{ foodname }}</h1>
+        <p class="lead">Ürün içerisinde bulunan alerjen maddeleri aşağıda listelenmiştir.</p>
+        <p class="lead">{{ allergennames }}</p>
+        <p>Ürün bilgileri</p>
+        <p>Ürün adı: {{ foodname }}</p>
+        <p>Ürün markası: {{ brand }}</p>
+        <p>Ürün barkod numarası: {{ barcodeno }}</p>
+        <p>Ürün yağ miktarı: {{ fat }}</p>
+        <p>Ürün enerji değeri: {{ calorie }}</p>
+        <p>Ürün protein değeri: {{ protein }}</p>
+        <p>Ürün karbonhidrat değeri: {{ carb }}</p>
+        <p>Ürün içindekiler listesi: {{ ingredients }}</p>
+        <p>Ürün miktarı: {{ weightvolume }}</p>
 
-<form class="lead" action="/search" method="POST">
-    <input type="number" name="search" placeholder="Barkod No">
-    <input class="btn btn-lg btn-secondary" type="submit" value="Ara">
-</form>
+        
 
 
 {% endblock %}
