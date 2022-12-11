@@ -33,6 +33,13 @@ def get_data_from_db_barcodeno(barcodeno):
     print(test_data)
     return test_data
 
+def get_data_from_db_foodname(foodname):
+    # select from allergen table
+    food = pd.read_sql_query('select * from food where foodname = \'' + foodname + "\'" ,con=engine)
+    barcodeno = food['barcodeno'].values[0]
+    test_data = get_data_from_db_barcodeno(barcodeno)
+    return test_data
+
 
 serv = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 serv.bind(("", 1214))
@@ -46,14 +53,26 @@ while True:
         print(data_user)
         if not data_user: break
         data_user = data_user.decode('utf-8')
-        barcodeno = data_user
-        print ("From client : ",barcodeno)
+        print ("From client : ",data_user)
 
-        try:
-            test_data = get_data_from_db_barcodeno(barcodeno)
-        except Exception as e:
-            print('Cannot get data from database.')
-            test_data = "ERROR"
+        if data_user.startswith("b"):
+            barcodeno = data_user[1:]
+            try:
+                test_data = get_data_from_db_barcodeno(barcodeno)
+                if test_data == "[]":
+                    raise Exception
+            except Exception as e:
+                print('Cannot get data from database.')
+                test_data = "ERROR"
+        else:
+            foodname = data_user
+            try:
+                test_data = get_data_from_db_foodname(foodname)
+                if test_data == "[]":
+                    raise Exception
+            except Exception as e:
+                print('Cannot get data from database.')
+                test_data = "ERROR"
 
         test_data = test_data.encode('utf-8')
         conn.send(test_data)
