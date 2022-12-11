@@ -13,7 +13,7 @@ def home():
     if client is None:
         try:
             client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            client.connect((socket.gethostname(), 1211))
+            client.connect((socket.gethostname(), 1214))
             print('Connected to server.')
         except Exception as e:
             print("Cannot connect to server.")
@@ -40,7 +40,6 @@ def search():
         from_server = client.recv(4096)
         from_server = from_server.decode('utf-8')
         print("From server : ",from_server)
-        client.close()
         return render_template('test.html', test=from_server)
 
 @app.route("/signin")

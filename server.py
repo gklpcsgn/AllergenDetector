@@ -15,7 +15,7 @@ except Exception as e:
 
 
 serv = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-serv.bind(("", 1211))
+serv.bind(("", 1214))
 print("listening")
 serv.listen(5)
 while True:
@@ -23,6 +23,7 @@ while True:
 
     while True:
         data_user = conn.recv(4096)
+        print(data_user)
         if not data_user: break
         data_user = data_user.decode('utf-8')
         barcodeno = data_user
@@ -50,8 +51,6 @@ while True:
     print ('client disconnected')
 
     # if ctrl+c is pressed end the loop
-    if KeyboardInterrupt:
-        break
     
 
 
