@@ -216,7 +216,9 @@ def logout():
     logout_user()
     return redirect(url_for('login'))
 
+
 @app.route('/profile')
+@login_required
 def profile():
     return render_template('profile.html')
 
