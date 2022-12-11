@@ -8,8 +8,9 @@
 {% extends "base.html" %} {% block title %} Allergen Detector {% endblock %}  {% block content %}
 
 
-<h1 class="cover-heading">{{ brand }} - {{ foodname }}</h1>
-        <p class="lead">Ürün içerisinde bulunan alerjen maddeleri aşağıda listelenmiştir.</p>
+<h1 class="cover-heading">{{ brand }}</h1>
+<h2>{{ foodname }}</h2>
+        <!-- <p class="lead">Ürün içerisinde bulunan alerjen maddeleri aşağıda listelenmiştir.</p>
         <p class="lead">{{ allergennames }}</p>
         <p>Ürün bilgileri</p>
         <p>Ürün adı: {{ foodname }}</p>
@@ -20,8 +21,32 @@
         <p>Ürün protein değeri: {{ protein }}</p>
         <p>Ürün karbonhidrat değeri: {{ carb }}</p>
         <p>Ürün içindekiler listesi: {{ ingredients }}</p>
-        <p>Ürün miktarı: {{ weightvolume }}</p>
+        <p>Ürün miktarı: {{ weightvolume }}</p> -->
+        
+        <h2>İçerdiği Alerjenler</h2>
+        <ul class="list-group">
+                {% for allergen in allergens %}
+                        <li class="list-group-item d-flex justify-content-between align-items-center">{{ allergen }}</li>
+                {% endfor %}
+        </ul>
 
+
+        </br>
+
+        <h2>Ürün Bilgileri</h2>
+
+        <ul class="list-group">
+                <!-- <li class="list-group-item">Ürün adı: {{ foodname }}</li>
+                <li class="list-group-item">Ürün markası: {{ brand }}</li> -->
+                <!-- parse allergen names using pandas -->
+
+                <li class="list-group-item d-flex justify-content-between align-items-center">Ürün yağ miktarı: <span class="badge badge-light">{{ fat }}</span></li>
+                <li class="list-group-item d-flex justify-content-between align-items-center">Ürün enerji değeri: <span class="badge badge-light">{{ calorie }}</span></li>
+                <li class="list-group-item d-flex justify-content-between align-items-center">Ürün protein değeri:  <span class="badge badge-light">{{ protein }}</span></li>
+                <li class="list-group-item d-flex justify-content-between align-items-center">Ürün karbonhidrat değeri:  <span class="badge badge-light">{{ carb }}</span></li>
+                <li class="list-group-item d-flex justify-content-between align-items-center">Ürün içindekiler listesi:  <span class="badge badge-light">{{ ingredients }}</span></li>
+                <li class="list-group-item d-flex justify-content-between align-items-center">Ürün miktarı:  <span class="badge badge-light">{{ weightvolume }}</span></li>
+        </ul>
         
 
 

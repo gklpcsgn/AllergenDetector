@@ -1,4 +1,4 @@
-<!-- 
+<!--
     Created on : 2017-10-10, 11:00:00
     Author     : Gökalp Coşgun & İsmail Buğra Öz
 
@@ -9,14 +9,31 @@
 
 
 <h1 class="cover-heading">Arama Sonuçları</h1>
+<!-- <ul class="list-group"> -->
         {% for item in data["barcodeno"] %}
         <!-- {{ item }} -->
-        <a href="/item/{{ item }}">Gitmek İçin Tıkla</a>
+        <!-- <a href="/item/{{ item }}">Gitmek İçin Tıkla</a>
         <p class="lead">{{ data[data["barcodeno"] == item]["barcodeno"].values[0] }}</p>
         <p class="lead">{{ data[data["barcodeno"] == item]["foodname"].values[0] }}</p>
         <p class="lead">{{ data[data["barcodeno"] == item]["brand"].values[0] }}</p>
-        <p>----</p>
+        <p>----</p> -->
+
+        <!-- <li class="list-group-item" onclick="location.href='/item/{{ item }}';" style="cursor: pointer;"> {{ data[data["barcodeno"] == item]["brand"].values[0] }} - {{ data[data["barcodeno"] == item]["foodname"].values[0] }}</li> -->
+
+
+        <div class="card" >
+                <!-- <img class="card-img-top" src="..." alt="Card image cap"> -->
+                <div class="card-body">
+                  <h5 class="card-title" style="color:black !important">{{ data[data["barcodeno"] == item]["brand"].values[0] }}</h5>
+                  <p class="card-text" style="color:black !important">{{ data[data["barcodeno"] == item]["foodname"].values[0] }}</p>
+                  <a href="/item/{{ item }}" class="btn btn-primary">Ürün Detayları</a>
+                </div>
+              </div>
+
+
+
         {% endfor %}
+<!-- </ul> -->
 
 
 {% endblock %}
