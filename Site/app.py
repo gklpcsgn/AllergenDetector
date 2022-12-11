@@ -37,7 +37,7 @@ def search():
                 flash('Barkod yalnızca sayı içerebilir.', category='error') 
                 return render_template("index.html")
             message = "b"
-            message += barkod
+            message += str(barkod)
             message = message.encode('utf-8')
             client.send(message)
             
@@ -85,7 +85,7 @@ def searchName():
 
             # return render_template('test.html', test=from_server)
             data = pd.read_json(from_server)
-        return render_template('result.html', barcodeno=data['barcodeno'][0], foodname=data['foodname'][0], brand=data['brand'][0], weightvolume=data['weightvolume'][0], ingredients=data['ingredients'][0], fat=data['fat'][0], protein=data['protein'][0], carbs=data['carbs'][0], calorie=data['calorie'][0], allergennames=data['allergennames'][0])
+        return render_template('search_results.html', data=data)
     else:
         from_server = '[{\"barcodeno\":1,\"brand\":\"firinci\",\"foodname\":\"ekmek\"},{\"barcodeno\":2,\"brand\":\"Eti\",\"foodname\":\"kek\"}]'
         data = pd.read_json(from_server)
@@ -108,11 +108,8 @@ def item(barcodeno):
             print("Cannot connect to server.")
             return render_template("index.html")
         barkod = barcodeno
-        if not barkod.isdigit():
-            flash('Barkod yalnızca sayı içerebilir.', category='error') 
-            return render_template("index.html")
         message = "b"
-        message += barkod
+        message += str(barkod)
         message = message.encode('utf-8')
         client.send(message)
         
