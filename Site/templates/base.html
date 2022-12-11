@@ -22,8 +22,8 @@
         <div class="inner">
           <h3 class="masthead-brand">Allergen Detector</h3>
           <nav class="nav nav-masthead justify-content-center">
-            <a class="nav-link active" href="/">Ana Ekran</a>
-            <a class="nav-link" href="/name_search">Ürün Adıyla Arama</a>
+            <a class="nav-link {% if request.path == '/' %}active{% endif %}" href="/">Ana Ekran</a>
+            <a class="nav-link {% if request.path == '/name_search' %}active{% endif %}" href="/name_search">Ürün Adıyla Arama</a>
             <a class="nav-link" href="/signin">Giriş Yap</a>
           </nav>
         </div>

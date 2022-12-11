@@ -2,13 +2,14 @@ from flask import Flask, render_template, request, redirect, url_for, flash
 import pandas as pd
 import pickle
 import socket
+import json
 
 app = Flask(__name__)
 # set the secret key.  keep this really secret:
 app.secret_key = b'_5#y2L"F4Q8z\n\xec]/'
 client = None
 
-isDebug = False
+isDebug = True
 
 @app.route("/", methods=['GET', 'POST'])
 def home():
@@ -56,7 +57,9 @@ def search():
     else:
         from_server = "[{\"barcodeno\":1,\"foodname\":\"ekmek\",\"brand\":\"firinci\",\"weightvolume\":200,\"ingredients\":\"un\",\"fat\":20,\"protein\":10,\"carbs\":75,\"calorie\":300,\"allergennames\":\"['gluten', 'findik']\"}]"
         data = pd.read_json(from_server)
-        return render_template('result.html', barcodeno=data['barcodeno'][0], foodname=data['foodname'][0], brand=data['brand'][0], weightvolume=data['weightvolume'][0], ingredients=data['ingredients'][0], fat=data['fat'][0], protein=data['protein'][0], carbs=data['carbs'][0], calorie=data['calorie'][0], allergennames=data['allergennames'][0])
+        allergens = data["allergennames"][0].replace("'","\"")
+        allergens = json.loads(allergens)
+        return render_template('result.html', barcodeno=data['barcodeno'][0], foodname=data['foodname'][0], brand=data['brand'][0], weightvolume=data['weightvolume'][0], ingredients=data['ingredients'][0], fat=data['fat'][0], protein=data['protein'][0], carbs=data['carbs'][0], calorie=data['calorie'][0], allergens=allergens)
 
 @app.route("/searchName", methods=['POST'])
 def searchName():
