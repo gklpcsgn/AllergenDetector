@@ -1,4 +1,5 @@
-from flask import Flask, render_template, request, redirect, url_for, flash,session
+from flask import Flask, render_template, request, redirect, url_for, flash,session,g
+from flask_login import LoginManager, login_user, login_required, logout_user, current_user, UserMixin
 import pandas as pd
 import pickle
 import socket
@@ -6,8 +7,13 @@ import json
 
 app = Flask(__name__)
 # set the secret key.  keep this really secret:
-app.secret_key = b'_5#y2L"F4Q8z\n\xec]/'
+app.secret_key = b'talha'
 client = None
+
+
+login_manager = LoginManager()
+login_manager.init_app(app)
+
 
 isDebug = False
 
@@ -18,21 +24,54 @@ try:
 except:
     isDebug = False
 
-class User:
+@login_manager.user_loader
+def load_user(user_id):
+    return User.get_by_id(user_id)
+
+class User(UserMixin):
     def __init__(self,userid , personname,personsurname,username,telephoneno=None,height=None,weight=None):
         self.username = username
         self.personname = personname
         self.personsurname = personsurname
         self.telephoneno = telephoneno
-        self.userid = userid
+        self.id = userid
         self.weight = weight
         self.height = height
+        self.allergens = None
 
     def set_allergens(self,allergens):
         self.allergens = allergens
 
     def __repr__(self):
         return f"User('{self.userid}',{self.username}', '{self.personname}', '{self.personsurname}')"
+    def get_id(self):
+        return self.id
+
+    
+    def get_by_id(userid):
+        global client
+        if client is None:
+            try:
+                client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                client.connect((socket.gethostname(), 1214))
+                print('Connected to server.')
+            except Exception as e:
+                print("Cannot connect to server.")
+                flash('Connection Error.', category='error')
+        message = "a"
+        message += str(userid)
+        message = message.encode('utf-8')
+        client.send(message)
+
+        # TODO : add ERROR handling
+        from_server = client.recv(4096)
+        from_server = from_server.decode('utf-8')
+
+        if from_server == "ERROR":
+            return None
+        else:
+            user_data = pd.read_json(from_server)
+            return User(user_data['userid'][0], user_data['personname'][0], user_data['personsurname'][0], user_data['e_mail'][0], user_data['telephoneno'][0], user_data['height'][0], user_data['weight'][0])
 
 
 @app.route("/", methods=['GET', 'POST'])
@@ -131,6 +170,8 @@ def searchbyname():
 @app.route("/signin", methods=['GET', 'POST'])
 def signin():
     global client
+    if current_user.is_authenticated:
+        return redirect(url_for('profile'))
     if request.method == 'POST':
         if not isDebug:
 
@@ -170,12 +211,11 @@ def signin():
                 flash('Kullanıcı adı veya şifre hatalı.', category='error')
                 return render_template("signin.html")
 
-            user_data = pd.read_json(from_server)
-            #  (self,userid , personname,personsurname,username,telephoneno=None,height=None,weight=None)
-            user = User(user_data['userid'][0], user_data['personname'][0], user_data['personsurname'][0], user_data['e_mail'][0], user_data['telephoneno'][0], user_data['height'][0], user_data['weight'][0])
-            
-            session["user_id"] = str(user.userid)
-            session["user_name"] = user.username
+        user_data = pd.read_json(from_server)
+        #  (self,userid , personname,personsurname,username,telephoneno=None,height=None,weight=None)
+        user = User(user_data['userid'][0], user_data['personname'][0], user_data['personsurname'][0], user_data['e_mail'][0], user_data['telephoneno'][0], user_data['height'][0], user_data['weight'][0])
+        
+        login_user(user)
 
             return render_template('test.html', test=user)
         else:
@@ -187,6 +227,12 @@ def signin():
         
 
     return render_template('signin.html')
+
+@app.route("/logout")
+@login_required
+def logout():
+    logout_user()
+    return redirect(url_for('login'))
 
 @app.route('/profile')
 def profile():
