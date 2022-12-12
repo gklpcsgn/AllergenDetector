@@ -48,6 +48,7 @@ def check_user_from_database(username,password):
     query = 'select * from person where e_mail = \'' + username + "\' and saltedpassword = \'" + password + "\'"
     print(query)
     user = pd.read_sql_query(query ,con=engine)
+    user["userid"] = user["userid"].astype(str)
     test_data = user.to_json(orient='records')
     return test_data
 
@@ -55,6 +56,8 @@ def get_data_from_db_userid(userid):
     query = 'select * from person where userid = ' + str(userid)
     print(query)
     user = pd.read_sql_query(query ,con=engine)
+    # set userid to string
+    user["userid"] = user["userid"].astype(str)
     test_data = user.to_json(orient='records')
     return test_data
 

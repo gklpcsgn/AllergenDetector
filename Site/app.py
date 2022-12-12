@@ -43,7 +43,7 @@ class User(UserMixin):
         self.allergens = allergens
 
     def __repr__(self):
-        return f"User('{self.userid}',{self.username}', '{self.personname}', '{self.personsurname}')"
+        return f"User('{self.id}',{self.username}', '{self.personname}', '{self.personsurname}')"
     def get_id(self):
         return self.id
 
@@ -203,15 +203,14 @@ def signin():
             from_server = from_server.decode('utf-8')
             print("From server : ",from_server)
 
-            
-
-            
-
             if from_server == "ERROR":
                 flash('Kullanıcı adı veya şifre hatalı.', category='error')
                 return render_template("signin.html")
-
+            # print("readed json :")
             user_data = pd.read_json(from_server)
+            # print(user_data.dtypes)
+            user_data['userid'] = user_data['userid'].astype(str)
+
             #  (self,userid , personname,personsurname,username,telephoneno=None,height=None,weight=None)
             user = User(user_data['userid'][0], user_data['personname'][0], user_data['personsurname'][0], user_data['e_mail'][0], user_data['telephoneno'][0], user_data['height'][0], user_data['weight'][0])
             
@@ -221,18 +220,16 @@ def signin():
         else:
             user_data = pd.read_json('[{"userid":31,"personname":"İsmail","personsurname":"Öz","username":"ioz","telephoneno":null,"height":null,"weight":null}]')
             user = User(user_data['userid'][0], user_data['personname'][0], user_data['personsurname'][0], user_data['username'][0], user_data['telephoneno'][0], user_data['height'][0], user_data['weight'][0])
-            session["user_id"] = str(user.userid)
-            session["user_name"] = user.username
+            login_user(user)
             return render_template('test.html', test=user)
         
-
     return render_template('signin.html')
 
 @app.route("/logout")
 @login_required
 def logout():
     logout_user()
-    return redirect(url_for('login'))
+    return redirect(url_for('signin'))
 
 
 @app.route('/profile')
