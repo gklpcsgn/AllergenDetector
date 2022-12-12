@@ -61,6 +61,13 @@ def get_data_from_db_userid(userid):
     test_data = user.to_json(orient='records')
     return test_data
 
+def get_allergens_from_db():
+    query = 'select * from allergen'
+    print(query)
+    allergens = pd.read_sql_query(query,con=engine)
+    test_data = allergens.to_json(orient='records')
+    return test_data
+
 serv = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 serv.bind(("", 1214))
 print("listening")
@@ -109,6 +116,14 @@ while True:
             except Exception as e:
                 print('Cannot get data from database.')
                 test_data = "ERROR_AUTHENTICATION"
+        elif data_user.startswith("g"):
+            try:
+                test_data = get_allergens_from_db()
+                if test_data == "[]":
+                    raise Exception
+            except Exception as e:
+                print('Cannot get data from database.')
+                test_data = "ERROR_ALLERGENS"
 
         else:
             foodname = data_user[1:]

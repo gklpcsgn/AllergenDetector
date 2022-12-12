@@ -63,11 +63,10 @@ class User(UserMixin):
         message = message.encode('utf-8')
         client.send(message)
 
-        # TODO : add ERROR handling
         from_server = client.recv(4096)
         from_server = from_server.decode('utf-8')
 
-        if from_server == "ERROR":
+        if from_server == "ERRORAUTHENTICATION":
             return None
         else:
             user_data = pd.read_json(from_server)
@@ -251,7 +250,6 @@ def item(barcodeno):
         message = message.encode('utf-8')
         client.send(message)
         
-        # TODO : add ERROR handling
         from_server = client.recv(4096)
         from_server = from_server.decode('utf-8')
         print("From server : ",from_server)
@@ -274,11 +272,30 @@ def item(barcodeno):
 
 @app.route("/admin")
 def admin():
+    global client
+    if client is None:
+        flash('Connection Error.', category='error')
+        print("Cannot connect to server.")
+        return render_template("index.html")
+    message = "g"
+    message = message.encode('utf-8')
+    client.send(message)
+    
+    from_server = client.recv(4096)
+    from_server = from_server.decode('utf-8')
+    print("From server : ",from_server)
+
+    if from_server == "ERRORALLERGENS":
+        flash('Alerjen bulunamadı.', category='error')
+        return render_template("index.html")
+
+    # return render_template('test.html', test=from_server)
+    allAllergens = pd.read_json(from_server)
+    # print(allAllergens)
     # TODO : check if user is admin
-    allAllergens = '[{"allergenid":1,"allergenname":"gluten"},{"allergenid":2,"allergenname":"findik"}]'
-    allAllergens = pd.read_json(allAllergens)
+    # allAllergens = '[{"allergenid":1,"allergenname":"gluten"},{"allergenid":2,"allergenname":"findik"}]'
+    # allAllergens = pd.read_json(allAllergens)
     # allAllergens = getAllAllergens()
-    # TODO : get all allergens from server
     return render_template('admin.html',allAllergens=allAllergens)
 
 
