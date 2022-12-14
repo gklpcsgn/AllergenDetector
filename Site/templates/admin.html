@@ -1,4 +1,4 @@
-{% extends "base.html" %} {% block title %} Allergen Detector {% endblock %}  {% block content %}
+{% extends "base.html" %} {% block title %} Allergen Detector {% endblock %} {% block content %}
 <h1>Admin Panel</h1>
 
 
@@ -6,31 +6,76 @@
 </br>
 <form action="/admin/addallergen" method="POST">
     <div class="form-group">
-    <input class="form-control" type="text" name="allergenname" placeholder="Alerjen Adı">
-    <input class="form-control" type="submit" value="Ekle">
-</div>
+        <input class="form-control" type="text" name="allergenname" placeholder="Alerjen Adı">
+        <input class="form-control" type="submit" value="Ekle">
+    </div>
 </form>
 </br>
 <h2>Ürün Ekle</h2>
 <form action="/admin/addproduct" method="POST">
     <div class="form-group">
-    <input class="form-control" type="text" name="productname" placeholder="Ürün Adı">
-    <input class="form-control" type="text" name="brand" placeholder="Marka">
-    <input class="form-control" type="text" name="productbarcode" placeholder="Ürün Barkodu">
-    <label for="addProdAllergenPick">Alerjenler</label>
-    <select id="addProdAllergenPick" class="form-control" multiple name="allergenid">
+        <input class="form-control" type="text" name="productname" placeholder="Ürün Adı">
+        <input class="form-control" type="text" name="brand" placeholder="Marka">
+        <input class="form-control" type="text" name="productbarcode" placeholder="Ürün Barkodu">
+        <!-- <label for="addProdAllergenPick">Alerjenler</label> -->
+        <!-- <select id="addProdAllergenPick" class="form-control" multiple name="allergenid">
         {% for allergen in allAllergens.values %}
             <option value="{{ allergen[0] }}">{{ allergen[1] }}</option>
         {% endfor %}
-    </select>
-    <input class="form-control" type="text" name="fat" placeholder="Yağ">
-    <input class="form-control" type="text" name="protein" placeholder="Protein">
-    <input class="form-control" type="text" name="carbs" placeholder="Karbonhidrat">
-    <input class="form-control" type="text" name="calorie" placeholder="Kalori">
-    <input class="form-control" type="text" name="weightvolume" placeholder="Ağırlık/Volüm">
-    <input class="form-control" type="text" name="ingredients" placeholder="İçerik">
+    </select> -->
 
-    <input class="form-control" type="submit" value="Ekle">
+        <div class="accordion" id="accordionExample">
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="headingOne">
+                    <button class="accordion-button" type="button" data-bs-toggle="collapse"
+                        data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                        Alerjenler
+                    </button>
+                </h2>
+                <div id="collapseOne" class="accordion-collapse collapse" aria-labelledby="headingOne"
+                    data-bs-parent="#accordionExample">
+                    <div class="accordion-body">
+                        {% for allergen in allAllergens.values %}
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="{{ allergen[1] }}" value=""
+                                id="flexCheckDefault">
+                            <label class="form-check-label" for="flexCheckDefault">
+                                {{ allergen[1] }}
+                            </label>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="headingTwo">
+                    <button class="accordion-button" type="button" data-bs-toggle="collapse"
+                        data-bs-target="#collapseTwo" aria-expanded="true" aria-controls="collapseTwo">
+                        Besin Değerleri
+                    </button>
+                </h2>
+                <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo"
+                    data-bs-parent="#accordionExample">
+                    <div class="accordion-body">
+                        <input class="form-control" type="text" name="fat" placeholder="Yağ">
+                        <input class="form-control" type="text" name="protein" placeholder="Protein">
+                        <input class="form-control" type="text" name="carbs" placeholder="Karbonhidrat">
+                        <input class="form-control" type="text" name="calorie" placeholder="Kalori">
+                        <input class="form-control" type="text" name="weightvolume" placeholder="Ağırlık/Volüm">
+                        <input class="form-control" type="text" name="ingredients" placeholder="İçerik">
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+
+
+
+
+
+        <input class="form-control" type="submit" value="Ekle">
     </div>
 </form>
 <!-- <h1>Alerjen Sil</h1>

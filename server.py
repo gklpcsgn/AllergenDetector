@@ -161,9 +161,9 @@ while True:
             allergenlist = data["allergenlist"]
 
             try:
-                write_food_to_db(productbarcode,productname,brand,weightvolume,ingredients)
-                write_nutrition_to_db(fat,protein,carbs,calorie,productbarcode)
-                write_food_contains_to_db(productbarcode,allergenlist)
+                # write_food_to_db(productbarcode,productname,brand,weightvolume,ingredients)
+                # write_nutrition_to_db(fat,protein,carbs,calorie,productbarcode)
+                # write_food_contains_to_db(productbarcode,allergenlist)
 
                 test_data = "OK"
             except Exception as e:
