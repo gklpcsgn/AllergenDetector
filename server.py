@@ -20,14 +20,14 @@ except Exception as e:
 
 def get_data_from_db_barcodeno(barcodeno):
     # select from allergen table
-    food = pd.read_sql_query('select * from food where barcodeno = ' + str(barcodeno),con=engine)
-    allergen_id = pd.read_sql_query('select * from food_contains where barcodeno = ' + str(barcodeno),con=engine)['allergenid'].values
+    food = pd.read_sql_query('select * from food where barcodeno = ' + '\'' + str(barcodeno) + '\'',con=engine)
+    allergen_id = pd.read_sql_query('select * from food_contains where barcodeno = ' + '\'' + str(barcodeno) + '\'',con=engine)['allergenid'].values
     allergen_names = []
 
     for i in allergen_id:
         allergen_names.append(pd.read_sql_query('select * from allergen where allergenid = ' + str(i),con=engine)['allergenname'].values[0])
 
-    nutritions = pd.read_sql_query('select * from nutrition where barcodeno= ' + str(barcodeno),con=engine).drop(columns = ["barcodeno"])
+    nutritions = pd.read_sql_query('select * from nutrition where barcodeno= ' + '\'' + str(barcodeno) + '\'',con=engine).drop(columns = ["barcodeno"])
     result = pd.concat([food,nutritions], axis=1)
     result["allergennames"] = str(allergen_names)
     # convert to json
@@ -84,7 +84,7 @@ def write_nutrition_to_db(fat,protein,carbs,calorie,barcodeno):
     engine.execute(query)
     
 def write_user_to_db(e_mail,personname,telephoneno,saltedpassword,height,weight):
-    query = 'insert into person values (default,\'' + e_mail + '\',\'' + personname + '\',\'' + telephoneno + '\',\'' + saltedpassword + '\',' + str(height) + ',' + str(weight) + ')'
+    query = 'insert into person(e_mail,personname,personsurname,telephoneno,saltedpassword,height,weight) values (\'' + e_mail + '\',\'' + personname + '\',\'' + telephoneno + '\',\'' + saltedpassword + '\',' + str(height) + ',' + str(weight) + ')'
     print(query)
     engine.execute(query)
 

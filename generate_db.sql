@@ -1,15 +1,15 @@
 CREATE TABLE ALLERGEN
 (
-	AllergenID  INTEGER  NOT NULL ,
+	AllergenID  SERIAL NOT NULL ,
 	AllergenName  varchar(20)  NULL 
 );
 
-
+/*
 CREATE  UNIQUE INDEX XPKALLERGEN ON ALLERGEN
 (
 	AllergenID  ASC
 );
-
+*/
 
 ALTER TABLE ALLERGEN
 	ADD CONSTRAINT  XPKALLERGEN PRIMARY KEY (AllergenID);
@@ -17,19 +17,19 @@ ALTER TABLE ALLERGEN
 
 CREATE TABLE FOOD
 (
-	BarcodeNo  INTEGER  NOT NULL ,
+	BarcodeNo  varchar(20)  NOT NULL ,
 	FoodName  varchar(20)  NULL ,
 	Brand  varchar(20)  NULL ,
-	WeightVolume  INTEGER  NULL ,
-	Ingredients  varchar(20)  NULL 
+	WeightVolume  varchar(10)  NULL ,
+	Ingredients  varchar(2000)  NULL 
 );
 
-
+/*
 CREATE  UNIQUE INDEX XPKFOOD ON FOOD
 (
 	BarcodeNo  ASC
 );
-
+*/
 
 ALTER TABLE FOOD
 	ADD CONSTRAINT  XPKFOOD PRIMARY KEY (BarcodeNo);
@@ -37,8 +37,8 @@ ALTER TABLE FOOD
 
 CREATE TABLE FOOD_CONTAINS
 (
-	BarcodeNo  INTEGER  NULL ,
-	AllergenID  INTEGER  NULL 
+	BarcodeNo  varchar(20) NOT NULL ,
+	AllergenID  INTEGER NOT NULL 
 );
 
 
@@ -48,15 +48,15 @@ CREATE TABLE NUTRITION
 	Protein  INTEGER  NULL ,
 	Carbs  INTEGER  NULL ,
 	Calorie  INTEGER  NULL ,
-	BarcodeNo  INTEGER  NOT NULL 
+	BarcodeNo  varchar(20)  NOT NULL 
 );
 
-
+/*
 CREATE  UNIQUE INDEX XPKNUTRITION ON NUTRITION
 (
 	BarcodeNo  ASC
 );
-
+*/
 
 ALTER TABLE NUTRITION
 	ADD CONSTRAINT  XPKNUTRITION PRIMARY KEY (BarcodeNo);
@@ -64,22 +64,23 @@ ALTER TABLE NUTRITION
 
 CREATE TABLE PERSON
 (
-	UserID  INTEGER  NOT NULL ,
-	E_Mail  varchar(20)  NULL ,
+	UserID  SERIAL NOT NULL ,
+	E_Mail  varchar(20)  NOT NULL,
 	PersonName  varchar(20)  NULL ,
 	PersonSurname  varchar(20)  NULL ,
 	TelephoneNo  varchar(20)  NULL ,
-	SaltedPassword  varchar(20)  NULL ,
+	SaltedPassword  varchar(20)  NOT NULL ,
 	Height  INTEGER  NULL ,
-	Weight  INTEGER  NULL 
+	Weight  INTEGER  NULL ,
+	is_admin  BOOLEAN  NOT NULL
 );
 
-
+/*
 CREATE  UNIQUE INDEX XPKPERSON ON PERSON
 (
 	UserID  ASC
 );
-
+*/
 
 ALTER TABLE PERSON
 	ADD CONSTRAINT  XPKPERSON PRIMARY KEY (UserID);
@@ -87,8 +88,8 @@ ALTER TABLE PERSON
 
 CREATE TABLE PERSONHASALLERGEN
 (
-	AllergenID  INTEGER  NULL ,
-	UserID  INTEGER  NULL 
+	AllergenID  SERIAL NOT NULL ,
+	UserID  INTEGER NOT NULL 
 );
 
 

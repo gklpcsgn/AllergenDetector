@@ -1,0 +1,30 @@
+select * from person;
+select * from food;
+select * from allergen;
+select * from food_contains;
+select * from personhasallergen;
+select * from nutrition;
+
+insert into person(e_mail,personname,personsurname,telephoneno,saltedpassword,height,weight,is_admin) values('gklp','Gökalp','Cosgun',null,'146146',195,95,true);
+insert into person(e_mail,personname,personsurname,telephoneno,saltedpassword,height,weight,is_admin) values('ioz','İsmail Buğra','Öz',null,'313131',178,105,true);
+insert into person(e_mail,personname,personsurname,telephoneno,saltedpassword,height,weight,is_admin) values('tak','Talha','Akbulut',null,'123456',145,40,False);
+
+insert into allergen(allergenname) values('Gluten');
+insert into allergen(allergenname) values('Soya Ürünü');
+insert into allergen(allergenname) values('Susam');
+insert into allergen(allergenname) values('Yer Fıstığı');
+insert into allergen(allergenname) values('Süt Ürünü');
+insert into allergen(allergenname) values('Yumurta');
+
+insert into food_contains values('8690526083704',14);
+insert into food_contains values('8690526083704',15);
+insert into food_contains values('8690526083704',16);
+insert into food_contains values('8690526083704',17);
+insert into food_contains values('8690526083704',18);
+insert into food_contains values('8690526083704',19);
+
+insert into food_contains values('1',14);
+insert into food_contains values('1',15);
+insert into food_contains values('1',16);
+
+
