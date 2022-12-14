@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, flash,session,g
+from flask import Flask, render_template, request, redirect, url_for, flash,session
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user, UserMixin
 import pandas as pd
 import pickle
@@ -178,50 +178,43 @@ def signin():
     if current_user.is_authenticated:
         return redirect(url_for('profile'))
     if request.method == 'POST':
-        if not isDebug:
+        # session.pop('username', None)
+        if client is None:
+            flash('Connection Error.', category='error')
+            print("Cannot connect to server.")
+            return render_template("index.html")
+        # send username and password to server
+        # if server returns true, redirect to profile page
+        # else, show error message
+        username = request.form['username']
+        password = request.form['password'] 
 
-            session.pop('username', None)
-            if client is None:
-                flash('Connection Error.', category='error')
-                print("Cannot connect to server.")
-                return render_template("index.html")
-            # send username and password to server
-            # if server returns true, redirect to profile page
-            # else, show error message
-            username = request.form['username']
-            password = request.form['password'] 
+        data = {}
+        data['username'] = username
+        data['password'] = str(password)
 
-            data = {}
-            data['username'] = username
-            data['password'] = str(password)
+        message = "u"
+        message += json.dumps(data)
+        message = message.encode('utf-8')
+        client.send(message)
 
-            message = "u"
-            message += json.dumps(data)
-            message = message.encode('utf-8')
-            client.send(message)
+        from_server = client.recv(4096)
+        from_server = from_server.decode('utf-8')
+        print("From server : ",from_server)
 
-            from_server = client.recv(4096)
-            from_server = from_server.decode('utf-8')
-            print("From server : ",from_server)
+        if from_server == "ERROR":
+            flash('Kullanıcı adı veya şifre hatalı.', category='error')
+            return render_template("signin.html")
 
-            if from_server == "ERROR":
-                flash('Kullanıcı adı veya şifre hatalı.', category='error')
-                return render_template("signin.html")
+        user_data = pd.read_json(from_server)
+        user_data['userid'] = user_data['userid'].astype(str)
 
-            user_data = pd.read_json(from_server)
-            user_data['userid'] = user_data['userid'].astype(str)
-
-            user = User(user_data['userid'][0], user_data['personname'][0], user_data['personsurname'][0], user_data['e_mail'][0], user_data['telephoneno'][0], user_data['height'][0], user_data['weight'][0])
-            
-            login_user(user)
-
-            return render_template('test.html', test=user)
-        else:
-            user_data = pd.read_json('[{"userid":31,"personname":"İsmail","personsurname":"Öz","username":"ioz","telephoneno":null,"height":null,"weight":null}]')
-            user = User(user_data['userid'][0], user_data['personname'][0], user_data['personsurname'][0], user_data['username'][0], user_data['telephoneno'][0], user_data['height'][0], user_data['weight'][0], is_admin=user_data['is_admin'][0])
-            login_user(user)
-            return render_template('test.html', test=user)
+        user = User(user_data['userid'][0], user_data['personname'][0], user_data['personsurname'][0], user_data['e_mail'][0], user_data['telephoneno'][0], user_data['height'][0], user_data['weight'][0])
         
+        login_user(user)
+
+        return redirect('test.html', test=user)
+          
     return render_template('signin.html')
 
 @app.route("/logout")
