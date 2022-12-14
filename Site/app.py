@@ -270,6 +270,7 @@ def item(barcodeno):
         allergens = json.loads(allergens)
         return render_template('result.html', barcodeno=data['barcodeno'][0], foodname=data['foodname'][0], brand=data['brand'][0], weightvolume=data['weightvolume'][0], ingredients=data['ingredients'][0], fat=data['fat'][0], protein=data['protein'][0], carbs=data['carbs'][0], calorie=data['calorie'][0], allergens=allergens)
 
+@login_required
 @app.route("/admin")
 def admin():
     global client
@@ -298,6 +299,45 @@ def admin():
     # allAllergens = getAllAllergens()
     return render_template('admin.html',allAllergens=allAllergens)
 
+@login_required
+@app.route("/admin/addproduct", methods=['GET', 'POST'])
+def addproduct():
+    if request.method == 'POST':
+        global client
+        if client is None:
+            flash('Connection Error.', category='error')
+            print("Cannot connect to server.")
+            return render_template("index.html")
+
+        print(request.form.get('allergenid'))
+        message = "w"
+        productname = request.form.get('productname')
+        brand = request.form.get('brand')
+        productbarcode = request.form.get('productbarcode')
+        fat = request.form.get('fat')
+        protein = request.form.get('protein')
+        carbs = request.form.get('carbs')
+        calorie = request.form.get('calorie')
+        weightvolume = request.form.get('weightvolume')
+        ingredients = request.form.get('ingredients')
+
+        # create a pd dataframe and convert it to json
+        data = pd.DataFrame({'productname': [productname], 'brand': [brand], 'productbarcode': [productbarcode], 'fat': [fat], 'protein': [protein], 'carbs': [carbs], 'calorie': [calorie], 'weightvolume': [weightvolume], 'ingredients': [ingredients]})
+        data = data.to_json(orient='records')
+        message += data
+        message = message.encode('utf-8')
+        client.send(message)
+
+        from_server = client.recv(4096)
+        from_server = from_server.decode('utf-8')
+        print("From server : ",from_server)
+
+        if from_server == "ERROR":
+            flash('Ürün eklenemedi.', category='error')
+            return render_template("index.html")
+        
+
+    return redirect('admin.html')
 
 if __name__ == "__main__":
     app.run(debug=True,port=8080)

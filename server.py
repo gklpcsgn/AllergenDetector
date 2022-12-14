@@ -11,7 +11,7 @@ import json
     
 # connect to local host
 try:
-    engine = create_engine('postgresql://postgres:146146@localhost/Proje')
+    engine = create_engine('postgresql://postgres:146146@130.61.116.61/')
     print('Connected to database.')
 except Exception as e:
     print('Connection Error.')
@@ -68,6 +68,26 @@ def get_allergens_from_db():
     test_data = allergens.to_json(orient='records')
     return test_data
 
+def write_food_to_db(barcodeno,foodname,brand,weightvolume,ingredients):
+    query = 'insert into food values (' + str(barcodeno) + ',\'' + foodname + '\',\'' + brand + '\',\'' + weightvolume + '\',\'' + ingredients + '\')'
+    print(query)
+    engine.execute(query)
+
+def write_food_contains_to_db(barcodeno,allergenid):
+    query = 'insert into food_contains values (' + str(barcodeno) + ',' + str(allergenid) + ')'
+    print(query)
+    engine.execute(query)
+
+def write_nutrition_to_db(fat,protein,carbs,calorie,barcodeno):
+    query = 'insert into nutrition values (' + str(fat) + ',' + str(protein) + ',' + str(carbs) + ',' + str(calorie) + ',' + str(barcodeno) + ')'
+    print(query)
+    engine.execute(query)
+    
+def write_user_to_db(e_mail,personname,telephoneno,saltedpassword,height,weight):
+    query = 'insert into person values (default,\'' + e_mail + '\',\'' + personname + '\',\'' + telephoneno + '\',\'' + saltedpassword + '\',' + str(height) + ',' + str(weight) + ')'
+    print(query)
+    engine.execute(query)
+
 serv = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 serv.bind(("", 1214))
 print("listening")
@@ -116,6 +136,7 @@ while True:
             except Exception as e:
                 print('Cannot get data from database.')
                 test_data = "ERROR_AUTHENTICATION"
+                
         elif data_user.startswith("g"):
             try:
                 test_data = get_allergens_from_db()
@@ -124,6 +145,30 @@ while True:
             except Exception as e:
                 print('Cannot get data from database.')
                 test_data = "ERROR_ALLERGENS"
+
+        elif data_user.startswith("w"):
+            # data is a food json
+            data = json.loads(data_user[1:])
+            productname = data["productname"]
+            brand = data["brand"]
+            productbarcode = data["productbarcode"]
+            fat = data["fat"]
+            protein = data["protein"]
+            carbs = data["carbs"]
+            calorie = data["calorie"]
+            weightvolume = data["weightvolume"]
+            ingredients = data["ingredients"]
+            allergenlist = data["allergenlist"]
+
+            try:
+                write_food_to_db(productbarcode,productname,brand,weightvolume,ingredients)
+                write_nutrition_to_db(fat,protein,carbs,calorie,productbarcode)
+                write_food_contains_to_db(productbarcode,allergenlist)
+
+                test_data = "OK"
+            except Exception as e:
+                print('Cannot write data to database.')
+                test_data = "ERROR_ADD_ITEM"
 
         else:
             foodname = data_user[1:]
