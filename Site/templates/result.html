@@ -5,49 +5,57 @@
     Now create a template for the index page. It will contain a search bar.
     The search bar will be a form with a numerical input and a submit button.
  -->
-{% extends "base.html" %} {% block title %} Allergen Detector {% endblock %}  {% block content %}
+{% extends "base.html" %} {% block title %} Allergen Detector {% endblock %} {% block content %}
 
 
 <h1 class="cover-heading">{{ brand }}</h1>
 <h2>{{ foodname }}</h2>
-        <!-- <p class="lead">Ürün içerisinde bulunan alerjen maddeleri aşağıda listelenmiştir.</p>
-        <p class="lead">{{ allergennames }}</p>
-        <p>Ürün bilgileri</p>
-        <p>Ürün adı: {{ foodname }}</p>
-        <p>Ürün markası: {{ brand }}</p>
-        <p>Ürün barkod numarası: {{ barcodeno }}</p>
-        <p>Ürün yağ miktarı: {{ fat }}</p>
-        <p>Ürün enerji değeri: {{ calorie }}</p>
-        <p>Ürün protein değeri: {{ protein }}</p>
-        <p>Ürün karbonhidrat değeri: {{ carb }}</p>
-        <p>Ürün içindekiler listesi: {{ ingredients }}</p>
-        <p>Ürün miktarı: {{ weightvolume }}</p> -->
-        
-        <h2>İçerdiği Alerjenler</h2>
-        <ul class="list-group">
-                {% for allergen in allergens %}
-                        <li class="list-group-item d-flex justify-content-between align-items-center">{{ allergen }}</li>
-                {% endfor %}
-        </ul>
+
+<h2>İçerdiği Alerjenler</h2>
+<ul class="list-group">
+        {% for allergen in allergens %}
+        <li class="list-group-item d-flex justify-content-between align-items-center">{{ allergen }}</li>
+        {% endfor %}
+</ul>
 
 
-        </br>
+</br>
 
-        <h2>Ürün Bilgileri</h2>
+<h2>Ürün Bilgileri</h2>
 
-        <ul class="list-group">
-                <!-- <li class="list-group-item">Ürün adı: {{ foodname }}</li>
-                <li class="list-group-item">Ürün markası: {{ brand }}</li> -->
-                <!-- parse allergen names using pandas -->
+<ul class="list-group">
 
-                <li class="list-group-item d-flex justify-content-between align-items-center">Ürün yağ miktarı: <span class="badge badge-light">{{ fat }}</span></li>
-                <li class="list-group-item d-flex justify-content-between align-items-center">Ürün enerji değeri: <span class="badge badge-light">{{ calorie }}</span></li>
-                <li class="list-group-item d-flex justify-content-between align-items-center">Ürün protein değeri:  <span class="badge badge-light">{{ protein }}</span></li>
-                <li class="list-group-item d-flex justify-content-between align-items-center">Ürün karbonhidrat değeri:  <span class="badge badge-light">{{ carbs }}</span></li>
-                <li class="list-group-item d-flex justify-content-between align-items-center">Ürün içindekiler listesi:  <span class="badge badge-light">{{ ingredients }}</span></li>
-                <li class="list-group-item d-flex justify-content-between align-items-center">Ürün miktarı:  <span class="badge badge-light">{{ weightvolume }}</span></li>
-        </ul>
-        
+
+        <li class="list-group-item d-flex justify-content-between align-items-center">Ürün yağ miktarı: <span>{{ fat
+                        }}</span></li>
+        <li class="list-group-item d-flex justify-content-between align-items-center">Ürün enerji değeri: <span>{{
+                        calorie }}</span></li>
+        <li class="list-group-item d-flex justify-content-between align-items-center">Ürün protein değeri: <span>{{
+                        protein }}</span></li>
+        <li class="list-group-item d-flex justify-content-between align-items-center">Ürün karbonhidrat değeri: <span>{{
+                        carbs }}</span></li>
+
+        <div class="accordion" id="accordionExample">
+                <div class="accordion-item">
+                        <h2 class="accordion-header" id="headingOne">
+                                <button class="accordion-button" type="button" data-bs-toggle="collapse"
+                                        data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                                        İçindekiler
+                                </button>
+                        </h2>
+                        <div id="collapseOne" class="accordion-collapse collapse" aria-labelledby="headingOne"
+                                data-bs-parent="#accordionExample">
+                                <div class="accordion-body">
+                                        {{ ingredients }}
+                                </div>
+                        </div>
+                </div>
+        </div>
+
+        <li class="list-group-item d-flex justify-content-between align-items-center">Ürün miktarı: <span>{{
+                        weightvolume }}</span></li>
+</ul>
+
 
 
 {% endblock %}
