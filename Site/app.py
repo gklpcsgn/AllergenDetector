@@ -28,6 +28,7 @@ except:
 def load_user(user_id):
     return User.get_by_id(user_id)
 
+
 class User(UserMixin):
     def __init__(self,userid , personname,personsurname,username,telephoneno=None,height=None,weight=None,allergens=None,is_admin=False):
         self.username = username
@@ -37,7 +38,7 @@ class User(UserMixin):
         self.id = userid
         self.weight = weight
         self.height = height
-        self.is_admin = False
+        self.is_admin = is_admin
         self.allergens = None
 
     def set_allergens(self,allergens):
@@ -67,11 +68,15 @@ class User(UserMixin):
         from_server = client.recv(4096)
         from_server = from_server.decode('utf-8')
 
+        
+
         if from_server == "ERRORAUTHENTICATION":
             return None
         else:
             user_data = pd.read_json(from_server)
-            return User(user_data['userid'][0], user_data['personname'][0], user_data['personsurname'][0], user_data['e_mail'][0], user_data['telephoneno'][0], user_data['height'][0], user_data['weight'][0], is_admin=user_data['is_admin'][0])
+            u =  User(user_data['userid'][0], user_data['personname'][0], user_data['personsurname'][0], user_data['e_mail'][0], user_data['telephoneno'][0], user_data['height'][0], user_data['weight'][0], is_admin=user_data['is_admin'][0])
+            return u
+            
 
 
 @app.route("/", methods=['GET', 'POST'])
@@ -213,7 +218,7 @@ def signin():
             return render_template('test.html', test=user)
         else:
             user_data = pd.read_json('[{"userid":31,"personname":"İsmail","personsurname":"Öz","username":"ioz","telephoneno":null,"height":null,"weight":null}]')
-            user = User(user_data['userid'][0], user_data['personname'][0], user_data['personsurname'][0], user_data['username'][0], user_data['telephoneno'][0], user_data['height'][0], user_data['weight'][0])
+            user = User(user_data['userid'][0], user_data['personname'][0], user_data['personsurname'][0], user_data['username'][0], user_data['telephoneno'][0], user_data['height'][0], user_data['weight'][0], is_admin=user_data['is_admin'][0])
             login_user(user)
             return render_template('test.html', test=user)
         
