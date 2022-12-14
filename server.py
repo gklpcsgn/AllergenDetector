@@ -102,6 +102,7 @@ while True:
         data_user = data_user.decode('utf-8')
         print ("From client : ",data_user)
 
+        # GET FOOD BY BARCODE
         if data_user.startswith("b"):
             barcodeno = data_user[1:]
             try:
@@ -112,9 +113,8 @@ while True:
                 print('Cannot get data from database.')
                 test_data = "ERROR"
         
-        
+        # CHECK USER FROM DATABASE
         elif data_user.startswith("u"):
-            # data is a username and password json
             data = json.loads(data_user[1:])
             username = data["username"]
             password = data["password"]
@@ -126,8 +126,8 @@ while True:
                 print('Cannot get data from database.')
                 test_data = "ERROR_SEARCH_BY_BARCODE"
 
+        # SIGN UP USER
         elif data_user.startswith("a"):
-            # data is a userid
             userid = data_user[1:]
             try:
                 test_data = get_data_from_db_userid(userid)
@@ -136,7 +136,8 @@ while True:
             except Exception as e:
                 print('Cannot get data from database.')
                 test_data = "ERROR_AUTHENTICATION"
-                
+            
+        # GET ALL ALLERGENS
         elif data_user.startswith("g"):
             try:
                 test_data = get_allergens_from_db()
@@ -146,6 +147,7 @@ while True:
                 print('Cannot get data from database.')
                 test_data = "ERROR_ALLERGENS"
 
+        # WRITE FOOD TO DATABASE
         elif data_user.startswith("w"):
             # data is a food json
             data = json.loads(data_user[1:])
@@ -161,15 +163,16 @@ while True:
             allergenlist = data["allergenlist"]
 
             try:
-                write_food_to_db(productbarcode,productname,brand,weightvolume,ingredients)
-                write_nutrition_to_db(fat,protein,carbs,calorie,productbarcode)
-                write_food_contains_to_db(productbarcode,allergenlist)
+                # write_food_to_db(productbarcode,productname,brand,weightvolume,ingredients)
+                # write_nutrition_to_db(fat,protein,carbs,calorie,productbarcode)
+                # write_food_contains_to_db(productbarcode,allergenlist)
 
-                test_data = "OK"
+                test_data = "SUCCESS_ADD_ITEM"
             except Exception as e:
                 print('Cannot write data to database.')
                 test_data = "ERROR_ADD_ITEM"
 
+        # GET FOOD BY NAME
         else:
             foodname = data_user[1:]
             try:

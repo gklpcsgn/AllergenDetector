@@ -29,7 +29,7 @@ def load_user(user_id):
     return User.get_by_id(user_id)
 
 class User(UserMixin):
-    def __init__(self,userid , personname,personsurname,username,telephoneno=None,height=None,weight=None):
+    def __init__(self,userid , personname,personsurname,username,telephoneno=None,height=None,weight=None,allergens=None,is_admin=False):
         self.username = username
         self.personname = personname
         self.personsurname = personsurname
@@ -37,6 +37,7 @@ class User(UserMixin):
         self.id = userid
         self.weight = weight
         self.height = height
+        self.is_admin = False
         self.allergens = None
 
     def set_allergens(self,allergens):
@@ -70,7 +71,7 @@ class User(UserMixin):
             return None
         else:
             user_data = pd.read_json(from_server)
-            return User(user_data['userid'][0], user_data['personname'][0], user_data['personsurname'][0], user_data['e_mail'][0], user_data['telephoneno'][0], user_data['height'][0], user_data['weight'][0])
+            return User(user_data['userid'][0], user_data['personname'][0], user_data['personsurname'][0], user_data['e_mail'][0], user_data['telephoneno'][0], user_data['height'][0], user_data['weight'][0], is_admin=user_data['is_admin'][0])
 
 
 @app.route("/", methods=['GET', 'POST'])
@@ -184,20 +185,16 @@ def signin():
             # else, show error message
             username = request.form['username']
             password = request.form['password'] 
-            if username == "admin" and password == "admin":
-                return render_template('admin.html')
 
-            # create a json object to send to server
             data = {}
             data['username'] = username
             data['password'] = str(password)
-            # send this as string to server
+
             message = "u"
             message += json.dumps(data)
             message = message.encode('utf-8')
             client.send(message)
 
-            # TODO : add ERROR handling
             from_server = client.recv(4096)
             from_server = from_server.decode('utf-8')
             print("From server : ",from_server)
@@ -205,12 +202,10 @@ def signin():
             if from_server == "ERROR":
                 flash('Kullanıcı adı veya şifre hatalı.', category='error')
                 return render_template("signin.html")
-            # print("readed json :")
+
             user_data = pd.read_json(from_server)
-            # print(user_data.dtypes)
             user_data['userid'] = user_data['userid'].astype(str)
 
-            #  (self,userid , personname,personsurname,username,telephoneno=None,height=None,weight=None)
             user = User(user_data['userid'][0], user_data['personname'][0], user_data['personsurname'][0], user_data['e_mail'][0], user_data['telephoneno'][0], user_data['height'][0], user_data['weight'][0])
             
             login_user(user)
@@ -290,13 +285,7 @@ def admin():
         flash('Alerjen bulunamadı.', category='error')
         return render_template("index.html")
 
-    # return render_template('test.html', test=from_server)
     allAllergens = pd.read_json(from_server)
-    # print(allAllergens)
-    # TODO : check if user is admin
-    # allAllergens = '[{"allergenid":1,"allergenname":"gluten"},{"allergenid":2,"allergenname":"findik"}]'
-    # allAllergens = pd.read_json(allAllergens)
-    # allAllergens = getAllAllergens()
     return render_template('admin.html',allAllergens=allAllergens)
 
 @login_required
@@ -321,7 +310,6 @@ def addproduct():
         weightvolume = request.form.get('weightvolume')
         ingredients = request.form.get('ingredients')
 
-        # create a pd dataframe and convert it to json
         data = pd.DataFrame({'productname': [productname], 'brand': [brand], 'productbarcode': [productbarcode], 'fat': [fat], 'protein': [protein], 'carbs': [carbs], 'calorie': [calorie], 'weightvolume': [weightvolume], 'ingredients': [ingredients]})
         data = data.to_json(orient='records')
         message += data
@@ -332,11 +320,14 @@ def addproduct():
         from_server = from_server.decode('utf-8')
         print("From server : ",from_server)
 
-        if from_server == "ERROR":
+        if from_server == "ERROR_ADD_ITEM":
             flash('Ürün eklenemedi.', category='error')
             return render_template("index.html")
-        
 
+        if from_server == "SUCCESS_ADD_ITEM":
+            flash('Ürün başarıyla eklendi.', category='success')
+            return render_template("index.html")
+        
     return redirect('admin.html')
 
 if __name__ == "__main__":
