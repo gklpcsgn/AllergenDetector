@@ -436,13 +436,7 @@ def deletesearch():
     message += str(barkod)
     message = message.encode('utf-8')
     client.send(message)
-    
-@app.route("/signup", methods=['GET', 'POST'])
-def signup():
-    if request.method == 'POST':
-        #TODO: signup
-        pass    
-    return render_template("signup.html")    # TODO : add ERROR handling
+
     from_server = client.recv(4096)
     from_server = from_server.decode('utf-8')
     print("From server : ",from_server)
@@ -461,6 +455,47 @@ def signup():
 
     return render_template('delete_search_results.html', data=df)
     # from_server = '[{\"barcodeno\":1,\"brand\":\"firinci\",\"foodname\":\"ekmek\"},{\"barcodeno\":2,\"brand\":\"Eti\",\"foodname\":\"kek\"}]'
+
+
+@app.route("/signup", methods=['GET', 'POST'])
+def signup():
+    if request.method == 'POST':
+        if client is None:
+            flash('Connection Error.', category='error')
+            print("Cannot connect to server.")
+            return render_template("index.html")
+
+        message = "s"
+        name = request.form['name']
+        surname = request.form['surname']
+        email = request.form['username']
+        telephone = request.form['phone']
+        password = request.form['password']
+        height = request.form['height']
+        weight = request.form['weight']
+
+
+
+        data = pd.DataFrame({'personname': [name], 'personsurname': [surname], 'e_mail': [email], 'saltedpassword': [password], 'height': [height], 'weight': [weight], 'telephoneno': [telephone]})
+        data = data.to_json(orient='records')
+        message += data
+        message = message.encode('utf-8')
+        client.send(message)
+
+        from_server = client.recv(4096)
+        from_server = from_server.decode('utf-8')
+        print("From server : ",from_server)
+        
+        if from_server == "ERROR_SIGNUP":
+            flash('Kayıt başarısız.', category='error')
+            return render_template("index.html")
+
+        if from_server == "SUCCESS_SIGNUP":
+            flash('Kayıt başarılı.', category='success')
+            return render_template("index.html")
+
+
+    return render_template("signup.html")
 
 ############################################################
 ########################METHODS#############################

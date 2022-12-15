@@ -91,8 +91,20 @@ def write_nutrition_to_db(fat,protein,carbs,calorie,barcodeno):
     engine.execute(query)
     
 
-def add_user_to_db(e_mail,personname,telephoneno,saltedpassword,height,weight,is_admin=False):
-    query = 'insert into person(e_mail,personname,personsurname,telephoneno,saltedpassword,height,weight,is_admin) values (\'' + e_mail + '\',\'' + personname + '\',\'' + telephoneno + '\',\'' + saltedpassword + '\',' + str(height) + ',' + str(weight) + ',' + str(is_admin) + ')'
+def add_user_to_db(e_mail,personname,personsurname,telephoneno,saltedpassword,height,weight,is_admin):
+    if telephoneno == '':
+        telephoneno = 'NULL'
+    else :
+        telephoneno = '\'' + telephoneno + '\''
+    if height == '':
+        height = 'NULL'
+    else:
+        height = '\'' + height + '\''
+    if weight == '':
+        weight = 'NULL'
+    else:
+        weight = '\'' + weight + '\''
+    query = 'insert into person(e_mail,personname,personsurname,telephoneno,saltedpassword,height,weight,is_admin) values (\'' + e_mail + '\',\'' + personname + '\',\'' + personsurname + '\',' + telephoneno + ',\'' + saltedpassword + '\',' + height + ',' + weight + ',' + str(is_admin) + ')'
     print(query)
     engine.execute(query)
 
@@ -269,10 +281,11 @@ while True:
             weight = data[0]["weight"]
             try:
                 add_user_to_db(e_mail,personname,personsurname,telephoneno,saltedpassword,height,weight,False)
-                test_data = "SUCCESS_ADD_USER"
+                test_data = "SUCCESS_SIGNUP"
             except Exception as e:
                 print('Cannot add user to database.')
-                test_data = "ERROR_ADD_USER"
+                print(e)
+                test_data = "ERROR_SIGNUP"
             
 
         # GET FOOD BY NAME
