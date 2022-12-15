@@ -94,10 +94,6 @@ class User(UserMixin):
                 # print("allergen_list : ", allergen_list)
             u =  User(user_data['userid'][0], user_data['personname'][0], user_data['personsurname'][0], user_data['e_mail'][0], user_data['telephoneno'][0], user_data['height'][0], user_data['weight'][0], allergens=allergen_list , is_admin=user_data['is_admin'][0])
             return u
-            
-
-    
-
 
 @app.route("/", methods=['GET', 'POST'])
 def home():
