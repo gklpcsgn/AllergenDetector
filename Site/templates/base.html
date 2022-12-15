@@ -28,18 +28,21 @@
       <header class="masthead mb-auto">
         <div class="inner">
           <nav class="nav nav-masthead justify-content-center">
-            <a class="nav-link {% if request.path == '/' %}active{% endif %}" href="/">Ana Ekran</a>
-            <a class="nav-link {% if request.path == '/name_search' %}active{% endif %}" href="/name_search">Ürün Adıyla Arama</a>
+            <a class="nav-link {% if request.path == '/' %}active{% endif %}" href="/"><i class="fa fa-home" aria-hidden="true"></i> Anasayfa</a>
+            <a class="nav-link {% if request.path == '/name_search' %}active{% endif %}" href="/name_search"><i class="fa fa-search" aria-hidden="true"></i> Ürün Adıyla Arama</a>
             <!-- <a class="nav-link" href="/signin">Giriş Yap</a> -->
             {% if current_user.is_authenticated %}
               {% if current_user.is_admin %}
-                <a class="nav-link {% if request.path == '/admin' %}active{% endif %}" href="/admin">Admin Paneli</a>
+                <a class="nav-link {% if request.path == '/admin' %}active{% endif %}" href="/admin"><i class="fa fa-user" aria-hidden="true"></i> Admin</a>
               {% endif %}
+
+                <a class="nav-link {% if request.path == '/profile' %}active{% endif %}" href="/profile"><i class="fa fa-user" aria-hidden="true"></i> Profil</a>
+
             {% endif %}
             {% if current_user.is_authenticated %}
-              <a class="nav-link" href="/logout">Çıkış Yap</a>
+              <a class="nav-link" href="/logout"><i class="fa fa-sign-out" aria-hidden="true"></i> Çıkış Yap</a>
             {% else %}
-              <a class="nav-link" href="/signin">Giriş Yap</a>
+              <a class="nav-link" href="/signin"><i class="fa fa-sign-in" aria-hidden="true"></i> Giriş Yap</a>
             {% endif %}
           </nav>
         </div>

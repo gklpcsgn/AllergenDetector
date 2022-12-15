@@ -14,7 +14,7 @@
 <h2>İçerdiği Alerjenler</h2>
 <ul class="list-group">
         {% for allergen in allergens %}
-        <li class="list-group-item d-flex justify-content-between align-items-center">{{ allergen }}</li>
+        <li class="list-group-item d-flex justify-content-between align-items-center {% if allergen in current_user.allergens %} list-group-item-danger {% endif %}">{{ allergen }}</li>
         {% endfor %}
 </ul>
 
@@ -46,7 +46,8 @@
                         <div id="collapseOne" class="accordion-collapse collapse" aria-labelledby="headingOne"
                                 data-bs-parent="#accordionExample">
                                 <div class="accordion-body">
-                                        {{ ingredients }}
+                                        <p style="text-align:justify; font: 0.8em sans-serif;"
+                                        >{{ ingredients }}</p>
                                 </div>
                         </div>
                 </div>
