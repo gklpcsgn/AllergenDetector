@@ -69,22 +69,29 @@ def get_allergens_from_db():
     return test_data
 
 def write_food_to_db(barcodeno,foodname,brand,weightvolume,ingredients):
-    query = 'insert into food values (' + str(barcodeno) + ',\'' + foodname + '\',\'' + brand + '\',\'' + weightvolume + '\',\'' + ingredients + '\')'
+    query = 'insert into food values (' + '\'' + str(barcodeno) + '\'' + ',\'' + foodname + '\',\'' + brand + '\',\'' + weightvolume + '\',\'' + ingredients + '\')'
     print(query)
     engine.execute(query)
 
-def write_food_contains_to_db(barcodeno,allergenid):
-    query = 'insert into food_contains values (' + str(barcodeno) + ',' + str(allergenid) + ')'
-    print(query)
-    engine.execute(query)
+def write_food_contains_to_db(barcodeno,allergennames):
+    allergenid = []
+    for allergen in allergennames:
+        query = 'select * from allergen where allergenname = \'' + allergen + '\''
+        print(query)
+        allergenid.append(pd.read_sql_query(query,con=engine)['allergenid'].values[0])
+    for i in allergenid:
+        query = 'insert into food_contains values (' + '\'' + str(barcodeno) + '\'' + ',' + str(i) + ')'
+        print(query)
+        engine.execute(query)
+
 
 def write_nutrition_to_db(fat,protein,carbs,calorie,barcodeno):
-    query = 'insert into nutrition values (' + str(fat) + ',' + str(protein) + ',' + str(carbs) + ',' + str(calorie) + ',' + str(barcodeno) + ')'
+    query = 'insert into nutrition values (' + str(fat) + ',' + str(protein) + ',' + str(carbs) + ',' + str(calorie) + ',' + '\'' + str(barcodeno) + '\'' + ')'
     print(query)
     engine.execute(query)
     
-def write_user_to_db(e_mail,personname,telephoneno,saltedpassword,height,weight):
-    query = 'insert into person(e_mail,personname,personsurname,telephoneno,saltedpassword,height,weight) values (\'' + e_mail + '\',\'' + personname + '\',\'' + telephoneno + '\',\'' + saltedpassword + '\',' + str(height) + ',' + str(weight) + ')'
+def write_user_to_db(e_mail,personname,telephoneno,saltedpassword,height,weight,is_admin):
+    query = 'insert into person(e_mail,personname,personsurname,telephoneno,saltedpassword,height,weight) values (\'' + e_mail + '\',\'' + personname + '\',\'' + telephoneno + '\',\'' + saltedpassword + '\',' + str(height) + ',' + str(weight) + ',' + str(is_admin) + ')'
     print(query)
     engine.execute(query)
 
@@ -151,21 +158,22 @@ while True:
         elif data_user.startswith("w"):
             # data is a food json
             data = json.loads(data_user[1:])
-            productname = data["productname"]
-            brand = data["brand"]
-            productbarcode = data["productbarcode"]
-            fat = data["fat"]
-            protein = data["protein"]
-            carbs = data["carbs"]
-            calorie = data["calorie"]
-            weightvolume = data["weightvolume"]
-            ingredients = data["ingredients"]
-            allergenlist = data["allergenlist"]
+            print(data)
+            productname = data[0]["productname"]
+            brand = data[0]["brand"]
+            productbarcode = data[0]["productbarcode"]
+            fat = data[0]["fat"]
+            protein = data[0]["protein"]
+            carbs = data[0]["carbs"]
+            calorie = data[0]["calorie"]
+            weightvolume = data[0]["weightvolume"]
+            ingredients = data[0]["ingredients"]
+            allergenlist = data[0]["allergenlist"]
 
             try:
-                # write_food_to_db(productbarcode,productname,brand,weightvolume,ingredients)
-                # write_nutrition_to_db(fat,protein,carbs,calorie,productbarcode)
-                # write_food_contains_to_db(productbarcode,allergenlist)
+                write_food_to_db(productbarcode,productname,brand,weightvolume,ingredients)
+                write_nutrition_to_db(fat,protein,carbs,calorie,productbarcode)
+                write_food_contains_to_db(productbarcode,allergenlist)
 
                 test_data = "SUCCESS_ADD_ITEM"
             except Exception as e:

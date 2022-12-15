@@ -15,7 +15,6 @@ client = None
 login_manager = LoginManager()
 login_manager.init_app(app)
 
-
 isDebug = False
 
 try:
@@ -308,7 +307,6 @@ def addproduct():
             print("Cannot connect to server.")
             return render_template("index.html")
 
-        print(request.form.get('allergenid'))
         message = "w"
         productname = request.form.get('productname')
         brand = request.form.get('brand')
@@ -319,8 +317,28 @@ def addproduct():
         calorie = request.form.get('calorie')
         weightvolume = request.form.get('weightvolume')
         ingredients = request.form.get('ingredients')
+        # get allergens
+        req = "g"
+        req = req.encode('utf-8')
+        client.send(req)
+        
+        alg = client.recv(4096)
+        alg = alg.decode('utf-8')
+        print("From server : ",alg)
 
-        data = pd.DataFrame({'productname': [productname], 'brand': [brand], 'productbarcode': [productbarcode], 'fat': [fat], 'protein': [protein], 'carbs': [carbs], 'calorie': [calorie], 'weightvolume': [weightvolume], 'ingredients': [ingredients]})
+        if alg == "ERRORALLERGENS":
+            flash('Alerjen bulunamadı.', category='error')
+            return render_template("index.html")
+
+        allAllergens = pd.read_json(alg) 
+        print(allAllergens)
+        allergens = []
+        for i in range(len(allAllergens)):
+            cur_allergen = allAllergens['allergenname'][i]
+            if request.form.get(cur_allergen) is not None:
+                allergens.append(cur_allergen)
+
+        data = pd.DataFrame({'productname': [productname], 'brand': [brand], 'productbarcode': [productbarcode], 'fat': [fat], 'protein': [protein], 'carbs': [carbs], 'calorie': [calorie], 'weightvolume': [weightvolume], 'ingredients': [ingredients], 'allergenlist': [allergens]})
         data = data.to_json(orient='records')
         message += data
         message = message.encode('utf-8')
