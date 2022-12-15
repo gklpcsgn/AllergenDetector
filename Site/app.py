@@ -380,13 +380,13 @@ def updateallergens():
         from_server = from_server.decode('utf-8')
         print("From server : ",from_server)
 
-        if from_server == "ERROR_UPDATE_ALLERGENS":
+        if from_server == "ERROR_UPDATE_USER_ALLERGENS":
             flash('Alerjenler güncellenemedi.', category='error')
-            return render_template("index.html")
+            return redirect('/profile')
 
-        if from_server == "SUCCESS_UPDATE_ALLERGENS":
+        if from_server == "SUCCESS_UPDATE_USER_ALLERGENS":
             flash('Alerjenler başarıyla güncellendi.', category='success')
-            return render_template("index.html")
+            return redirect('/profile')
 
     return redirect('/profile')
 
