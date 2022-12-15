@@ -10,6 +10,7 @@ app = Flask(__name__)
 app.secret_key = b'talha'
 client = None
 
+# all_allergens = None
 
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -212,7 +213,10 @@ def signin():
         
         login_user(user)
 
-        return render_template('test.html', test=user)
+        # return render_template('test.html', test=user)
+        
+
+        return redirect(url_for('profile'))
           
     return render_template('signin.html')
 
@@ -220,13 +224,21 @@ def signin():
 @login_required
 def logout():
     logout_user()
-    return redirect(url_for('signin'))
+    return redirect("/")
 
 
 @app.route('/profile')
 @login_required
 def profile():
-    return render_template('profile.html')
+    message = "g"
+    message = message.encode('utf-8')
+    client.send(message)
+    
+    from_server = client.recv(4096)
+    from_server = from_server.decode('utf-8')
+    print("From server : ",from_server)
+    allAllergens = pd.read_json(from_server)
+    return render_template('profile.html',allAllergens=allAllergens)
 
 @app.route("/item/<int:barcodeno>")
 def item(barcodeno):
