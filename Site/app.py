@@ -361,6 +361,13 @@ def addproduct():
         
     return redirect('admin.html')
 
+@login_required
+@app.route("/profile/updateallergens", methods=['GET', 'POST'])
+def updateallergens():
+    #TODO : update allergens of user
+    return redirect('profile.html')
+
+
 ############################################################
 ########################METHODS#############################
 ############################################################
