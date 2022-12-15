@@ -176,7 +176,9 @@ button {
 
 }
 
-
+.lead{
+  font-family: monospace;
+}
 /* 
   This are for the search box until line 267
 */
@@ -205,11 +207,13 @@ input[type="text"] {
   line-height: 1;
   outline: none;
   caret-color: auto;
+  font-family: sans-serif;  
 }
 
 input[type="text"]::placeholder {
   color: #fff;
   opacity: 0.3;
+  font-family: monospace;
 }
 
 #s-qwe {
