@@ -437,12 +437,7 @@ def deletesearch():
     message = message.encode('utf-8')
     client.send(message)
     
-@app.route("/signup", methods=['GET', 'POST'])
-def signup():
-    if request.method == 'POST':
-        #TODO: signup
-        pass    
-    return render_template("signup.html")    # TODO : add ERROR handling
+   # TODO : add ERROR handling
     from_server = client.recv(4096)
     from_server = from_server.decode('utf-8')
     print("From server : ",from_server)
@@ -461,6 +456,13 @@ def signup():
 
     return render_template('delete_search_results.html', data=df)
     # from_server = '[{\"barcodeno\":1,\"brand\":\"firinci\",\"foodname\":\"ekmek\"},{\"barcodeno\":2,\"brand\":\"Eti\",\"foodname\":\"kek\"}]'
+
+@app.route("/signup", methods=['GET', 'POST'])
+def signup():
+    if request.method == 'POST':
+        #TODO: signup
+        pass    
+    return render_template("signup.html") 
 
 ############################################################
 ########################METHODS#############################
