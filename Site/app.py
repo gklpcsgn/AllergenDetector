@@ -39,7 +39,7 @@ class User(UserMixin):
         self.weight = weight
         self.height = height
         self.is_admin = is_admin
-        self.allergens = None
+        self.allergens = allergens
 
     def set_allergens(self,allergens):
         self.allergens = allergens
@@ -74,9 +74,29 @@ class User(UserMixin):
             return None
         else:
             user_data = pd.read_json(from_server)
-            u =  User(user_data['userid'][0], user_data['personname'][0], user_data['personsurname'][0], user_data['e_mail'][0], user_data['telephoneno'][0], user_data['height'][0], user_data['weight'][0], is_admin=user_data['is_admin'][0])
+            allergen_list = []
+            algs = "q"
+            algs += str(userid)
+            algs = algs.encode('utf-8')
+            client.send(algs)
+
+            from_server_algs = client.recv(4096)
+            from_server_algs = from_server_algs.decode('utf-8')
+
+            # print("From server algs : ",from_server_algs)
+            if from_server_algs == "ERROR_GET_USER_ALLERGENS":
+                print("ERROR")
+            else:
+                allergen_json = json.loads(from_server_algs)
+                # turn into list
+                for i in range(len(allergen_json)):
+                    allergen_list.append(allergen_json[i]['allergenname'])
+                # print("allergen_list : ", allergen_list)
+            u =  User(user_data['userid'][0], user_data['personname'][0], user_data['personsurname'][0], user_data['e_mail'][0], user_data['telephoneno'][0], user_data['height'][0], user_data['weight'][0], allergens=allergen_list , is_admin=user_data['is_admin'][0])
             return u
             
+
+    
 
 
 @app.route("/", methods=['GET', 'POST'])
@@ -202,6 +222,8 @@ def signin():
         from_server = from_server.decode('utf-8')
         print("From server : ",from_server)
 
+        
+
         if from_server == "ERROR":
             flash('Kullanıcı adı veya şifre hatalı.', category='error')
             return render_template("signin.html")
@@ -209,7 +231,25 @@ def signin():
         user_data = pd.read_json(from_server)
         user_data['userid'] = user_data['userid'].astype(str)
 
-        user = User(user_data['userid'][0], user_data['personname'][0], user_data['personsurname'][0], user_data['e_mail'][0], user_data['telephoneno'][0], user_data['height'][0], user_data['weight'][0])
+        allergen_list = []
+        algs = "q"
+        algs += str(user_data['userid'])
+        algs = algs.encode('utf-8')
+        client.send(algs)
+
+        from_server_algs = client.recv(4096)
+        from_server_algs = from_server_algs.decode('utf-8')
+
+        # print("From server algs : ",from_server_algs)
+        if from_server_algs == "ERROR_GET_USER_ALLERGENS":
+            print("ERROR")
+        else:
+            allergen_json = json.loads(from_server_algs)
+            # turn into list
+            allergen_list = [allergen_json['allergenname'][0]]
+            # print("allergen_list : ", allergen_list)
+
+        user = User(user_data['userid'][0], user_data['personname'][0], user_data['personsurname'][0], user_data['e_mail'][0], user_data['telephoneno'][0], user_data['height'][0], user_data['weight'][0], allergens=allergen_list , is_admin=user_data['is_admin'][0])
         
         login_user(user)
 
@@ -230,49 +270,37 @@ def logout():
 @app.route('/profile')
 @login_required
 def profile():
-    message = "g"
+    print("Allergens of current user : ", current_user.allergens)
+    allAllergens = get_all_allergens()
+    return render_template('profile.html',allAllergens=allAllergens)
+
+@app.route("/item/<int:barcodeno>")
+def item(barcodeno):
+    global client
+    if client is None:
+        flash('Connection Error.', category='error')
+        print("Cannot connect to server.")
+        return render_template("index.html")
+    barkod = barcodeno
+    message = "b"
+    message += str(barkod)
     message = message.encode('utf-8')
     client.send(message)
     
     from_server = client.recv(4096)
     from_server = from_server.decode('utf-8')
     print("From server : ",from_server)
-    allAllergens = pd.read_json(from_server)
-    return render_template('profile.html',allAllergens=allAllergens)
 
-@app.route("/item/<int:barcodeno>")
-def item(barcodeno):
-    if not isDebug:
-        global client
-        if client is None:
-            flash('Connection Error.', category='error')
-            print("Cannot connect to server.")
-            return render_template("index.html")
-        barkod = barcodeno
-        message = "b"
-        message += str(barkod)
-        message = message.encode('utf-8')
-        client.send(message)
-        
-        from_server = client.recv(4096)
-        from_server = from_server.decode('utf-8')
-        print("From server : ",from_server)
+    if from_server == "ERROR":
+        flash('Barkod bulunamadı.', category='error')
+        return render_template("index.html")
 
-        if from_server == "ERROR":
-            flash('Barkod bulunamadı.', category='error')
-            return render_template("index.html")
+    # return render_template('test.html', test=from_server)
+    data = pd.read_json(from_server)
+    allergens = data["allergennames"][0].replace("'","\"")
+    allergens = json.loads(allergens)
+    return render_template('result.html', barcodeno=data['barcodeno'][0], foodname=data['foodname'][0], brand=data['brand'][0], weightvolume=data['weightvolume'][0], ingredients=data['ingredients'][0], fat=data['fat'][0], protein=data['protein'][0], carbs=data['carbs'][0], calorie=data['calorie'][0], allergens=allergens)
 
-        # return render_template('test.html', test=from_server)
-        data = pd.read_json(from_server)
-        allergens = data["allergennames"][0].replace("'","\"")
-        allergens = json.loads(allergens)
-        return render_template('result.html', barcodeno=data['barcodeno'][0], foodname=data['foodname'][0], brand=data['brand'][0], weightvolume=data['weightvolume'][0], ingredients=data['ingredients'][0], fat=data['fat'][0], protein=data['protein'][0], carbs=data['carbs'][0], calorie=data['calorie'][0], allergens=allergens)
-    else:
-        from_server = "[{\"barcodeno\":1,\"foodname\":\"ekmek\",\"brand\":\"firinci\",\"weightvolume\":200,\"ingredients\":\"un\",\"fat\":20,\"protein\":10,\"carbs\":75,\"calorie\":300,\"allergennames\":\"['gluten', 'findik']\"}]"
-        data = pd.read_json(from_server)
-        allergens = data["allergennames"][0].replace("'","\"")
-        allergens = json.loads(allergens)
-        return render_template('result.html', barcodeno=data['barcodeno'][0], foodname=data['foodname'][0], brand=data['brand'][0], weightvolume=data['weightvolume'][0], ingredients=data['ingredients'][0], fat=data['fat'][0], protein=data['protein'][0], carbs=data['carbs'][0], calorie=data['calorie'][0], allergens=allergens)
 
 @login_required
 @app.route("/admin")
@@ -282,19 +310,7 @@ def admin():
         flash('Connection Error.', category='error')
         print("Cannot connect to server.")
         return render_template("index.html")
-    message = "g"
-    message = message.encode('utf-8')
-    client.send(message)
-    
-    from_server = client.recv(4096)
-    from_server = from_server.decode('utf-8')
-    print("From server : ",from_server)
-
-    if from_server == "ERRORALLERGENS":
-        flash('Alerjen bulunamadı.', category='error')
-        return render_template("index.html")
-
-    allAllergens = pd.read_json(from_server)
+    allAllergens = get_all_allergens()
     return render_template('admin.html',allAllergens=allAllergens)
 
 @login_required
@@ -318,24 +334,13 @@ def addproduct():
         weightvolume = request.form.get('weightvolume')
         ingredients = request.form.get('ingredients')
         # get allergens
-        req = "g"
-        req = req.encode('utf-8')
-        client.send(req)
-        
-        alg = client.recv(4096)
-        alg = alg.decode('utf-8')
-        print("From server : ",alg)
-
-        if alg == "ERRORALLERGENS":
-            flash('Alerjen bulunamadı.', category='error')
-            return render_template("index.html")
-
-        allAllergens = pd.read_json(alg) 
+        allAllergens = get_all_allergens()
         allergens = []
         for i in range(len(allAllergens)):
             cur_allergen = allAllergens['allergenname'][i]
             if request.form.get(cur_allergen) is not None:
                 allergens.append(cur_allergen)
+
         data = pd.DataFrame({'productname': [productname], 'brand': [brand], 'productbarcode': [productbarcode], 'fat': [fat], 'protein': [protein], 'carbs': [carbs], 'calorie': [calorie], 'weightvolume': [weightvolume], 'ingredients': [ingredients], 'allergenlist': [allergens]})
         data = data.to_json(orient='records')
         message += data
@@ -355,6 +360,32 @@ def addproduct():
             return render_template("index.html")
         
     return redirect('admin.html')
+
+############################################################
+########################METHODS#############################
+############################################################
+
+def get_all_allergens():
+    global client
+    if client is None:
+        print("No connection to server.")
+        flash('Connection Error.', category='error')
+        return None
+    else:
+        req = "g"
+        req = req.encode('utf-8')
+        client.send(req)
+        
+        alg = client.recv(4096)
+        alg = alg.decode('utf-8')
+        print("From server : ",alg)
+
+        if alg == "ERRORALLERGENS":
+            flash('Alerjen bulunamadı.', category='error')
+            return render_template("index.html")
+
+        allergens = pd.read_json(alg) 
+        return allergens
 
 if __name__ == "__main__":
     app.run(debug=True,port=8080)

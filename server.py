@@ -95,6 +95,13 @@ def write_user_to_db(e_mail,personname,telephoneno,saltedpassword,height,weight,
     print(query)
     engine.execute(query)
 
+def get_user_allergens_from_db(userid):
+    query = 'select allergenname from allergen as a join personhasallergen as p on a.allergenid=p.allergenid where p.userid=' + str(userid) + ';'
+    print(query)
+    allergens = pd.read_sql_query(query,con=engine)
+    test_data = allergens.to_json(orient='records')
+    return test_data
+
 def remove_food_from_db(barcodeno):
     # first remove from nutrition
     query = 'delete from nutrition where barcodeno = ' + '\'' + str(barcodeno) + '\''
@@ -204,6 +211,18 @@ while True:
                 print('Cannot remove data from database.')
                 test_data = "ERROR_REMOVE_ITEM"
 
+        # GET USER ALLERGENS
+        elif data_user.startswith("q"):
+            userid = data_user[1:]
+            try:
+                test_data = get_user_allergens_from_db(userid)
+                if test_data == "[]":
+                    raise Exception
+            except Exception as e:
+                print('Cannot get data from database.')
+                test_data = "ERROR_GET_USER_ALLERGENS"
+
+
         # GET FOOD BY NAME
         else:
             foodname = data_user[1:]
@@ -217,6 +236,8 @@ while True:
 
         test_data = test_data.encode('utf-8')
         conn.send(test_data)
+
+
 
     conn.close()
     print ('client disconnected')
