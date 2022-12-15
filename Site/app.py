@@ -400,7 +400,12 @@ def deletesearch():
     #TODO: Name searchdaki gibi ama barkoda göre arama yapılacak
     return redirect('admin.html')
     
-
+@app.route("/signup", methods=['GET', 'POST'])
+def signup():
+    if request.method == 'POST':
+        #TODO: signup
+        pass    
+    return render_template("signup.html")
 ############################################################
 ########################METHODS#############################
 ############################################################
