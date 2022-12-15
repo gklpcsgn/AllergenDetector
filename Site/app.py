@@ -146,36 +146,31 @@ def search():
 
 @app.route("/searchName", methods=['POST'])
 def searchName():
-    global isDebug
-    if not isDebug:
-        global client
-        if request.method == 'POST':
-            if client is None:
-                flash('Connection Error.', category='error')
-                print("Cannot connect to server.")
-                return render_template("index.html")
-            foodname = request.form['searchName']
-            message = "s"
-            message += foodname
-            message = message.encode('utf-8')
-            client.send(message)
-            
-            # TODO : add ERROR handling
-            from_server = client.recv(4096)
-            from_server = from_server.decode('utf-8')
-            print("From server : ",from_server)
+    global client
+    if request.method == 'POST':
+        if client is None:
+            flash('Connection Error.', category='error')
+            print("Cannot connect to server.")
+            return render_template("index.html")
+        foodname = request.form['searchName']
+        message = "s"
+        message += foodname
+        message = message.encode('utf-8')
+        client.send(message)
+        
+        # TODO : add ERROR handling
+        from_server = client.recv(4096)
+        from_server = from_server.decode('utf-8')
+        print("From server : ",from_server)
 
-            if from_server == "ERROR":
-                flash('Ürün adı bulunamadı.', category='error')
-                return render_template("name_search.html")
+        if from_server == "ERROR":
+            flash('Ürün adı bulunamadı.', category='error')
+            return render_template("name_search.html")
 
-            # return render_template('test.html', test=from_server)
-            data = pd.read_json(from_server)
-            return render_template('search_results.html', data=data)
-    else:
-        from_server = '[{\"barcodeno\":1,\"brand\":\"firinci\",\"foodname\":\"ekmek\"},{\"barcodeno\":2,\"brand\":\"Eti\",\"foodname\":\"kek\"}]'
+        # return render_template('test.html', test=from_server)
         data = pd.read_json(from_server)
         return render_template('search_results.html', data=data)
+        # from_server = '[{\"barcodeno\":1,\"brand\":\"firinci\",\"foodname\":\"ekmek\"},{\"barcodeno\":2,\"brand\":\"Eti\",\"foodname\":\"kek\"}]'
 
 @app.route("/name_search")
 def searchbyname():
@@ -389,17 +384,66 @@ def updateallergens():
     return redirect('/profile')
 
 @login_required
-@app.route("/admin/delete", methods=['GET', 'POST'])
-def delete():
-    #TODO: delete given product
-    return redirect('admin.html')
+@app.route("/admin/delete/<string:barcodeno>")
+def delete(barcodeno):
+    global client
+    if client is None:
+        flash('Connection Error.', category='error')
+        print("Cannot connect to server.")
+        return render_template("index.html")
+    message = "r"
+    message += str(barcodeno)
+    message = message.encode('utf-8')
+    client.send(message)
+    
+    # TODO : add ERROR handling
+    from_server = client.recv(4096)
+    from_server = from_server.decode('utf-8')
+    print("From server : ",from_server)
+
+    if from_server == "ERROR_REMOVE_ITEM":
+        flash('Ürün silinemedi.', category='error')
+        return render_template("index.html")
+
+    if from_server == "SUCCESS_REMOVE_ITEM":
+        flash('Ürün başarıyla silindi.', category='success')
+        return render_template("index.html")
 
 @login_required
 @app.route("/admin/deletesearch", methods=['GET', 'POST'])
 def deletesearch():
-    #TODO: Name searchdaki gibi ama barkoda göre arama yapılacak
-    return redirect('admin.html')
+    if client is None:
+        flash('Connection Error.', category='error')
+        print("Cannot connect to server.")
+        return render_template("index.html")
+    barkod = request.form['barkod']
+    if not barkod.isdigit():
+        flash('Barkod yalnızca sayı içerebilir.', category='error') 
+        return render_template("index.html")
+    message = "b"
+    message += str(barkod)
+    message = message.encode('utf-8')
+    client.send(message)
     
+    # TODO : add ERROR handling
+    from_server = client.recv(4096)
+    from_server = from_server.decode('utf-8')
+    print("From server : ",from_server)
+
+    if from_server == "ERROR":
+        flash('Barkod bulunamadı.', category='error')
+        return render_template("index.html")
+
+    # return render_template('test.html', test=from_server)
+    data = pd.read_json(from_server)
+    allergens = data["allergennames"][0].replace("'","\"")
+    allergens = json.loads(allergens)
+
+    # create a dataframe for barcodeno, brand, foodname
+    df = pd.DataFrame({'barcodeno': [data["barcodeno"][0]], 'brand': [data["brand"][0]], 'foodname': [data["foodname"][0]]})
+
+    return render_template('delete_search_results.html', data=df)
+    # from_server = '[{\"barcodeno\":1,\"brand\":\"firinci\",\"foodname\":\"ekmek\"},{\"barcodeno\":2,\"brand\":\"Eti\",\"foodname\":\"kek\"}]'
 
 ############################################################
 ########################METHODS#############################
