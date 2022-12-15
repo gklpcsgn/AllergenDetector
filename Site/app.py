@@ -319,13 +319,11 @@ def addproduct():
             return render_template("index.html")
 
         allAllergens = pd.read_json(alg) 
-        print(allAllergens)
         allergens = []
         for i in range(len(allAllergens)):
             cur_allergen = allAllergens['allergenname'][i]
             if request.form.get(cur_allergen) is not None:
                 allergens.append(cur_allergen)
-
         data = pd.DataFrame({'productname': [productname], 'brand': [brand], 'productbarcode': [productbarcode], 'fat': [fat], 'protein': [protein], 'carbs': [carbs], 'calorie': [calorie], 'weightvolume': [weightvolume], 'ingredients': [ingredients], 'allergenlist': [allergens]})
         data = data.to_json(orient='records')
         message += data

@@ -95,6 +95,20 @@ def write_user_to_db(e_mail,personname,telephoneno,saltedpassword,height,weight,
     print(query)
     engine.execute(query)
 
+def remove_food_from_db(barcodeno):
+    # first remove from nutrition
+    query = 'delete from nutrition where barcodeno = ' + '\'' + str(barcodeno) + '\''
+    # then remove from food_contains
+    query2 = 'delete from food_contains where barcodeno = ' + '\'' + str(barcodeno) + '\''
+    # then remove from food
+    query3 = 'delete from food where barcodeno = ' + '\'' + str(barcodeno) + '\''
+    print(query)
+    print(query2)
+    print(query3)
+    engine.execute(query)
+    engine.execute(query2)
+    engine.execute(query3)
+
 serv = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 serv.bind(("", 1214))
 print("listening")
@@ -180,6 +194,16 @@ while True:
             except Exception as e:
                 print('Cannot write data to database.')
                 test_data = "ERROR_ADD_ITEM"
+
+        # REMOVE FOOD FROM DATABASE
+        elif data_user.startswith("r"):
+            barcodeno = data_user[1:]
+            try:
+                remove_food_from_db(barcodeno)
+                test_data = "SUCCESS_REMOVE_ITEM"
+            except Exception as e:
+                print('Cannot remove data from database.')
+                test_data = "ERROR_REMOVE_ITEM"
 
         # GET FOOD BY NAME
         else:
