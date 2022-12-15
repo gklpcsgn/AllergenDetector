@@ -171,7 +171,7 @@ while True:
                     raise Exception
             except Exception as e:
                 print('Cannot get data from database.')
-                test_data = "ERROR"
+                test_data = "ERROR_SEARCH_BY_BARCODE"
         
         # CHECK USER FROM DATABASE
         elif data_user.startswith("u"):
@@ -183,8 +183,8 @@ while True:
                 if test_data == "[]":
                     raise Exception
             except Exception as e:
-                print('Cannot get data from database.')
-                test_data = "ERROR_SEARCH_BY_BARCODE"
+                print('Cannot get user.')
+                test_data = "ERROR_CHECK_USER"
 
         # SIGN UP USER
         elif data_user.startswith("a"):
@@ -289,7 +289,7 @@ while True:
             
 
         # GET FOOD BY NAME
-        else:
+        elif data_user.startswith("y"):
             foodname = data_user[1:]
             try:
                 test_data = get_data_from_db_foodname(foodname)

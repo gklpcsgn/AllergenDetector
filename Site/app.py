@@ -133,7 +133,7 @@ def search():
         from_server = from_server.decode('utf-8')
         print("From server : ",from_server)
 
-        if from_server == "ERROR":
+        if from_server == "ERROR_SEARCH_BY_BARCODE":
             flash('Barkod bulunamadı.', category='error')
             return render_template("index.html")
 
@@ -153,7 +153,7 @@ def searchName():
             print("Cannot connect to server.")
             return render_template("index.html")
         foodname = request.form['searchName']
-        message = "s"
+        message = "y"
         message += foodname
         message = message.encode('utf-8')
         client.send(message)
@@ -163,7 +163,7 @@ def searchName():
         from_server = from_server.decode('utf-8')
         print("From server : ",from_server)
 
-        if from_server == "ERROR":
+        if from_server == "ERROR_SEARCH_BY_NAME":
             flash('Ürün adı bulunamadı.', category='error')
             return render_template("name_search.html")
 
@@ -208,7 +208,7 @@ def signin():
 
         
 
-        if from_server == "ERROR":
+        if from_server == "ERROR_CHECK_USER":
             flash('Kullanıcı adı veya şifre hatalı.', category='error')
             return render_template("signin.html")
 
@@ -516,7 +516,7 @@ def get_all_allergens():
         alg = alg.decode('utf-8')
         print("From server : ",alg)
 
-        if alg == "ERRORALLERGENS":
+        if alg == "ERROR_ALLERGENS":
             flash('Alerjen bulunamadı.', category='error')
             return render_template("index.html")
 
