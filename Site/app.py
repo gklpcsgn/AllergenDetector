@@ -393,7 +393,7 @@ def updateallergens():
             flash('Alerjenler başarıyla güncellendi.', category='success')
             return render_template("index.html")
 
-    return redirect('profile.html')
+    return redirect('/profile')
 
 
 ############################################################
