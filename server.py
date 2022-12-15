@@ -94,7 +94,7 @@ print("listening")
 serv.listen(5)
 while True:
     conn, addr = serv.accept()
-
+    print("connected")
     while True:
         data_user = conn.recv(4096)
         print(data_user)
