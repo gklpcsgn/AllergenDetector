@@ -20,8 +20,7 @@
                     <div class="accordion-body">
                         {% for allergen in allAllergens.values %}
                         <div class="form-check">
-                            <input class="form-check-input" type="checkbox" name="{{ allergen[1] }}" value=""
-                                id="flexCheckDefault">
+                            <input class="form-check-input" type="checkbox" name="{{ allergen[1] }}" value="" {% if allergen[1] in current_user.allergens %} checked {% endif %} id="flexCheckDefault">
                             <label class="form-check-label" for="flexCheckDefault">
                                 {{ allergen[1] }}
                             </label>
