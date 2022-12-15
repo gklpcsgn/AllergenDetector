@@ -90,8 +90,9 @@ def write_nutrition_to_db(fat,protein,carbs,calorie,barcodeno):
     print(query)
     engine.execute(query)
     
-def write_user_to_db(e_mail,personname,telephoneno,saltedpassword,height,weight,is_admin):
-    query = 'insert into person(e_mail,personname,personsurname,telephoneno,saltedpassword,height,weight) values (\'' + e_mail + '\',\'' + personname + '\',\'' + telephoneno + '\',\'' + saltedpassword + '\',' + str(height) + ',' + str(weight) + ',' + str(is_admin) + ')'
+
+def add_user_to_db(e_mail,personname,telephoneno,saltedpassword,height,weight,is_admin=False):
+    query = 'insert into person(e_mail,personname,personsurname,telephoneno,saltedpassword,height,weight,is_admin) values (\'' + e_mail + '\',\'' + personname + '\',\'' + telephoneno + '\',\'' + saltedpassword + '\',' + str(height) + ',' + str(weight) + ',' + str(is_admin) + ')'
     print(query)
     engine.execute(query)
 
@@ -101,6 +102,7 @@ def get_user_allergens_from_db(userid):
     allergens = pd.read_sql_query(query,con=engine)
     test_data = allergens.to_json(orient='records')
     return test_data
+
 
 def remove_food_from_db(barcodeno):
     # first remove from nutrition
@@ -252,6 +254,26 @@ while True:
                 print('Cannot update data from database.')
                 print(e)
                 test_data = "ERROR_UPDATE_USER_ALLERGENS"
+
+        # ADD USER TO DATABASE
+        elif data_user.startswith("s"):
+            data = json.loads(data_user[1:])
+            print(data)
+            # insert into person(e_mail,personname,personsurname,telephoneno,saltedpassword,height,weight,is_admin) values('tak','Talha','Akbulut',null,'123456',145,40,False)
+            e_mail = data[0]["e_mail"]
+            personname = data[0]["personname"]
+            personsurname = data[0]["personsurname"]
+            telephoneno = data[0]["telephoneno"]
+            saltedpassword = data[0]["saltedpassword"]
+            height = data[0]["height"]
+            weight = data[0]["weight"]
+            try:
+                add_user_to_db(e_mail,personname,personsurname,telephoneno,saltedpassword,height,weight,False)
+                test_data = "SUCCESS_ADD_USER"
+            except Exception as e:
+                print('Cannot add user to database.')
+                test_data = "ERROR_ADD_USER"
+            
 
         # GET FOOD BY NAME
         else:
