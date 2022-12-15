@@ -251,7 +251,6 @@ def signin():
 
         # return render_template('test.html', test=user)
         
-
         return redirect(url_for('profile'))
           
     return render_template('signin.html')
@@ -360,7 +359,40 @@ def addproduct():
 @login_required
 @app.route("/profile/updateallergens", methods=['GET', 'POST'])
 def updateallergens():
-    #TODO : update allergens of user
+    if request.method == 'POST':
+        global client
+        if client is None:
+            flash('Connection Error.', category='error')
+            print("Cannot connect to server.")
+            return render_template("index.html")
+
+        message = "p"
+        allergens = []
+        user_id = current_user.id
+        # get allergens
+        allAllergens = get_all_allergens()
+        for i in range(len(allAllergens)):
+            cur_allergen = allAllergens['allergenname'][i]
+            if request.form.get(cur_allergen) is not None:
+                allergens.append(cur_allergen)
+        message+=str(user_id)
+        message+=str(allergens)
+        print(message)
+        message = message.encode('utf-8')
+        client.send(message)
+
+        from_server = client.recv(4096)
+        from_server = from_server.decode('utf-8')
+        print("From server : ",from_server)
+
+        if from_server == "ERROR_UPDATE_ALLERGENS":
+            flash('Alerjenler güncellenemedi.', category='error')
+            return render_template("index.html")
+
+        if from_server == "SUCCESS_UPDATE_ALLERGENS":
+            flash('Alerjenler başarıyla güncellendi.', category='success')
+            return render_template("index.html")
+
     return redirect('profile.html')
 
 

@@ -116,6 +116,24 @@ def remove_food_from_db(barcodeno):
     engine.execute(query2)
     engine.execute(query3)
 
+def update_user_allergens(userid,allergennamesstring):
+    # delete all user allergens
+    import ast
+    allergennames = ast.literal_eval(allergennamesstring)
+    query = 'delete from personhasallergen where userid = ' + str(userid)
+    print(query)
+    engine.execute(query)
+    # insert new allergens
+    allergenid = []
+    for allergen in allergennames:
+        query = 'select * from allergen where allergenname = \'' + allergen + '\''
+        print(query)
+        allergenid.append(pd.read_sql_query(query,con=engine)['allergenid'].values[0])
+    for i in allergenid:
+        query = 'insert into personhasallergen values (' + str(i) + ',' + str(userid) + ')'
+        print(query)
+        engine.execute(query)
+
 serv = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 serv.bind(("", 1214))
 print("listening")
@@ -222,6 +240,18 @@ while True:
                 print('Cannot get data from database.')
                 test_data = "ERROR_GET_USER_ALLERGENS"
 
+        # UPDATE USER ALLERGENS
+        elif data_user.startswith("p"):
+            data = data_user[1:]
+            userid = data[:1]
+            allergenlist = data[1:]
+            try:
+                update_user_allergens(userid,allergenlist)
+                test_data = "SUCCESS_UPDATE_USER_ALLERGENS"
+            except Exception as e:
+                print('Cannot update data from database.')
+                print(e)
+                test_data = "ERROR_UPDATE_USER_ALLERGENS"
 
         # GET FOOD BY NAME
         else:
