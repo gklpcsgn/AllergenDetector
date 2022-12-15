@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, flash,session
+from flask import Flask, render_template, request, redirect, url_for, flash,session,abort
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user, UserMixin
 import pandas as pd
 import pickle
@@ -285,9 +285,12 @@ def item(barcodeno):
     return render_template('result.html', barcodeno=data['barcodeno'][0], foodname=data['foodname'][0], brand=data['brand'][0], weightvolume=data['weightvolume'][0], ingredients=data['ingredients'][0], fat=data['fat'][0], protein=data['protein'][0], carbs=data['carbs'][0], calorie=data['calorie'][0], allergens=allergens)
 
 
-@login_required
+
 @app.route("/admin")
+@login_required
 def admin():
+    if current_user.is_admin == 0:
+        abort(403)
     global client
     if client is None:
         flash('Connection Error.', category='error')
@@ -296,9 +299,12 @@ def admin():
     allAllergens = get_all_allergens()
     return render_template('admin.html',allAllergens=allAllergens)
 
-@login_required
+
 @app.route("/admin/addproduct", methods=['GET', 'POST'])
+@login_required
 def addproduct():
+    if current_user.is_admin == 0:
+        abort(403)
     if request.method == 'POST':
         global client
         if client is None:
@@ -344,8 +350,9 @@ def addproduct():
         
     return redirect('admin.html')
 
-@login_required
+
 @app.route("/profile/updateallergens", methods=['GET', 'POST'])
+@login_required
 def updateallergens():
     if request.method == 'POST':
         global client
@@ -383,9 +390,12 @@ def updateallergens():
 
     return redirect('/profile')
 
-@login_required
+
 @app.route("/admin/delete/<string:barcodeno>")
+@login_required
 def delete(barcodeno):
+    if current_user.is_admin == 0:
+        abort(403)
     global client
     if client is None:
         flash('Connection Error.', category='error')
@@ -409,9 +419,11 @@ def delete(barcodeno):
         flash('Ürün başarıyla silindi.', category='success')
         return render_template("index.html")
 
-@login_required
 @app.route("/admin/deletesearch", methods=['GET', 'POST'])
+@login_required
 def deletesearch():
+    if current_user.is_admin == 0:
+        abort(403)
     if client is None:
         flash('Connection Error.', category='error')
         print("Cannot connect to server.")
