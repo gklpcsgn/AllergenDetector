@@ -388,6 +388,18 @@ def updateallergens():
 
     return redirect('/profile')
 
+@login_required
+@app.route("/admin/delete", methods=['GET', 'POST'])
+def delete():
+    #TODO: delete given product
+    return redirect('admin.html')
+
+@login_required
+@app.route("/admin/deletesearch", methods=['GET', 'POST'])
+def deletesearch():
+    #TODO: Name searchdaki gibi ama barkoda göre arama yapılacak
+    return redirect('admin.html')
+    
 
 ############################################################
 ########################METHODS#############################
