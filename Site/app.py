@@ -534,6 +534,12 @@ def signup():
 
     return render_template("signup.html")
 
+@app.route("/admin/deleteallergen", methods=['POST'])
+@login_required
+def deleteallergen():
+    # TODO : implement deleteallergen
+    return redirect('/admin')
+
 ############################################################
 ########################METHODS#############################
 ############################################################

@@ -10,7 +10,20 @@
         <input class="form-control" type="submit" value="Ekle">
     </div>
 </form>
-</br>
+<br/>
+<h2>Alerjen Sil</h2>
+<form action="/admin/deleteallergen" method="POST">
+    <div class="form-group">
+    <label for="deleteAllergenPick">Alerjenler</label>
+    <select id="deleteAllergenPick" class="form-control" name="allergenid">
+        {% for allergen in allAllergens.values %}
+            <option value="{{ allergen[0] }}">id:{{ allergen[0] }} - {{ allergen[1] }}</option>
+        {% endfor %}
+    </select>
+    <input class="form-control" type="submit" value="Sil">
+    </div>
+</form>
+<br/>
 <h2>Ürün Ekle</h2>
 <form action="/admin/addproduct" method="POST">
     <div class="form-group">
@@ -79,23 +92,20 @@
     </div>
 </form>
 </br>
+<h2>Ürün Güncelle</h2>
+<form action="/admin/updateProductScreen" method="POST">
+    <div class="form-group">
+        <input class="form-control" type="text" name="barkod" placeholder="Ürün Barkodu">
+        <input class="form-control" type="submit" value="Düzenle">
+    </div>
+    <br/>
 <h2>Ürün Sil</h2>
 <form action="/admin/deletesearch" method="POST">
     <div class="form-group">
         <input class="form-control" type="text" name="barkod" placeholder="Ürün Barkodu">
         <input class="form-control" type="submit" value="Ara">
     </div>
-    <!-- <h1>Alerjen Sil</h1>
-<form action="/admin/deleteallergen" method="POST">
-    <div class="form-group">
-    <label for="deleteAllergenPick">Alerjenler</label>
-    <select id="deleteAllergenPick" class="form-control" name="allergenid">
-        {% for allergen in allAllergens.values %}
-            <option value="{{ allergen[0] }}">{{ allergen[1] }}</option>
-        {% endfor %}
-    </select>
-    <input class="form-control" type="submit" value="Sil">
-    </div>
-</form> -->
+    <br/>
+
 
     {% endblock %}
