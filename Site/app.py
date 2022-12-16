@@ -119,10 +119,16 @@ def search():
             flash('Connection Error.', category='error')
             print("Cannot connect to server.")
             return render_template("index.html")
-        barkod = request.form['search']
+
+        barkod = str(request.form['search'])
+
         if not barkod.isdigit():
             flash('Barkod yalnızca sayı içerebilir.', category='error') 
             return render_template("index.html")
+        if len(barkod) != 13:
+            flash('Barkod 13 haneli olmalıdır.', category='error')
+            return render_template("index.html")
+
         message = "b"
         message += str(barkod)
         message = message.encode('utf-8')
@@ -142,7 +148,7 @@ def search():
         allergens = data["allergennames"][0].replace("'","\"")
         allergens = json.loads(allergens)
         print("allergens : ", allergens)
-        return render_template('result.html', barcodeno=data['barcodeno'][0], foodname=data['foodname'][0], brand=data['brand'][0], weightvolume=data['weightvolume'][0], ingredients=data['ingredients'][0], fat=data['fat'][0], protein=data['protein'][0], carbs=data['carbs'][0], calorie=data['calorie'][0], allergens=allergens)
+        return render_template('result.html', barcodeno=str(data['barcodeno'][0]), foodname=data['foodname'][0], brand=data['brand'][0], weightvolume=data['weightvolume'][0], ingredients=data['ingredients'][0], fat=data['fat'][0], protein=data['protein'][0], carbs=data['carbs'][0], calorie=data['calorie'][0], allergens=allergens)
 
 @app.route("/searchName", methods=['POST'])
 def searchName():
@@ -152,7 +158,7 @@ def searchName():
             flash('Connection Error.', category='error')
             print("Cannot connect to server.")
             return render_template("index.html")
-        foodname = request.form['searchName']
+        foodname = (request.form['searchName'])
         message = "y"
         message += foodname
         message = message.encode('utf-8')
@@ -169,6 +175,10 @@ def searchName():
 
         # return render_template('test.html', test=from_server)
         data = pd.read_json(from_server)
+        # set barcode to 13 digit
+        if len(str(data['barcodeno'][0])) < 13:
+            data['barcodeno'][0] = "0" + str(data['barcodeno'][0])
+
         return render_template('search_results.html', data=data)
         # from_server = '[{\"barcodeno\":1,\"brand\":\"firinci\",\"foodname\":\"ekmek\"},{\"barcodeno\":2,\"brand\":\"Eti\",\"foodname\":\"kek\"}]'
 
@@ -257,7 +267,7 @@ def profile():
     allAllergens = get_all_allergens()
     return render_template('profile.html',allAllergens=allAllergens)
 
-@app.route("/item/<int:barcodeno>")
+@app.route("/item/<string:barcodeno>")
 def item(barcodeno):
     global client
     if client is None:
@@ -274,7 +284,7 @@ def item(barcodeno):
     from_server = from_server.decode('utf-8')
     print("From server : ",from_server)
 
-    if from_server == "ERROR":
+    if from_server == "ERROR_SEARCH_BY_BARCODE":
         flash('Barkod bulunamadı.', category='error')
         return render_template("index.html")
 
@@ -282,7 +292,7 @@ def item(barcodeno):
     data = pd.read_json(from_server)
     allergens = data["allergennames"][0].replace("'","\"")
     allergens = json.loads(allergens)
-    return render_template('result.html', barcodeno=data['barcodeno'][0], foodname=data['foodname'][0], brand=data['brand'][0], weightvolume=data['weightvolume'][0], ingredients=data['ingredients'][0], fat=data['fat'][0], protein=data['protein'][0], carbs=data['carbs'][0], calorie=data['calorie'][0], allergens=allergens)
+    return render_template('result.html', barcodeno=str(data['barcodeno'][0]), foodname=data['foodname'][0], brand=data['brand'][0], weightvolume=data['weightvolume'][0], ingredients=data['ingredients'][0], fat=data['fat'][0], protein=data['protein'][0], carbs=data['carbs'][0], calorie=data['calorie'][0], allergens=allergens)
 
 
 
@@ -355,6 +365,7 @@ def addproduct():
         calorie = request.form.get('calorie')
         weightvolume = request.form.get('weightvolume')
         ingredients = request.form.get('ingredients')
+        ingredients = ingredients.replace("%", "%%")
         # get allergens
         allAllergens = get_all_allergens()
         allergens = []
@@ -470,6 +481,7 @@ def deletesearch():
     message = "b"
     message += str(barkod)
     message = message.encode('utf-8')
+    print("To server : ",message)
     client.send(message)
 
     from_server = client.recv(4096)
@@ -527,7 +539,7 @@ def signup():
 
         if from_server == "SUCCESS_SIGNUP":
             flash('Kayıt başarılı.', category='success')
-            return render_template("index.html")
+            return redirect('/signin')
 
         if from_server == "EMAIL_ALREADY_EXISTS":
             flash('Bu e-mail adresi zaten kullanımda.', category='error')
@@ -574,8 +586,10 @@ def updateProductScreen():
         flash('Connection Error.', category='error')
         print("Cannot connect to server.")
         return render_template("index.html")
-    barkod = request.form['barkod']
+    
     message = "b"
+    barkod = request.form['barkod']
+    print(barkod)
     message += str(barkod)
     message = message.encode('utf-8')
     client.send(message)
@@ -584,7 +598,7 @@ def updateProductScreen():
     from_server = from_server.decode('utf-8')
     print("From server : ",from_server)
 
-    if from_server == "ERROR":
+    if from_server == "ERROR_SEARCH_BY_BARCODE":
         flash('Barkod bulunamadı.', category='error')
         return render_template("index.html")
 
@@ -594,10 +608,56 @@ def updateProductScreen():
     allergens = json.loads(allergens)
     return render_template('updateScreen.html', barcodeno=data['barcodeno'][0], foodname=data['foodname'][0], brand=data['brand'][0], weightvolume=data['weightvolume'][0], ingredients=data['ingredients'][0], fat=data['fat'][0], protein=data['protein'][0], carbs=data['carbs'][0], calorie=data['calorie'][0], allergens=allergens,allAllergens = get_all_allergens())
 
-@app.route("/admin/updateProduct", methods=['POST'])
+@app.route("/admin/updateproduct", methods=['POST'])
 @login_required
 def updateProduct():
-    # TODO: Update product
+    if current_user.is_admin == 0:
+        abort(403)
+    if request.method == 'POST':
+        global client
+        if client is None:
+            flash('Connection Error.', category='error')
+            print("Cannot connect to server.")
+            return render_template("index.html")
+
+        message = "t"
+        productname = request.form.get('productname')
+        brand = request.form.get('brand')
+        productbarcode = request.form.get('productbarcode')
+        fat = request.form.get('fat')
+        protein = request.form.get('protein')
+        carbs = request.form.get('carbs')
+        calorie = request.form.get('calorie')
+        weightvolume = request.form.get('weightvolume')
+        ingredients = request.form.get('ingredients')
+        # replace % with %% for sql query
+        ingredients = ingredients.replace("%", "%%")
+        # get allergens
+        allAllergens = get_all_allergens()
+        allergens = []
+        for i in range(len(allAllergens)):
+            cur_allergen = allAllergens['allergenname'][i]
+            if request.form.get(cur_allergen) is not None:
+                allergens.append(cur_allergen)
+
+        data = pd.DataFrame({'productname': [productname], 'brand': [brand], 'productbarcode': [productbarcode], 'fat': [fat], 'protein': [protein], 'carbs': [carbs], 'calorie': [calorie], 'weightvolume': [weightvolume], 'ingredients': [ingredients], 'allergenlist': [allergens]})
+        data = data.to_json(orient='records')
+        message += data
+        message = message.encode('utf-8')
+        client.send(message)
+
+        from_server = client.recv(4096)
+        from_server = from_server.decode('utf-8')
+        print("From server : ",from_server)
+
+        if from_server == "ERROR_UPDATE_ITEM":
+            flash('Ürün eklenemedi.', category='error')
+            redirect(url_for('admin'))
+
+        if from_server == "SUCCESS_UPDATE_ITEM":
+            flash('Ürün başarıyla eklendi.', category='success')
+            redirect(url_for('admin'))
+        
     return redirect(url_for('admin'))
 
 ############################################################
