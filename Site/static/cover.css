@@ -53,9 +53,9 @@ body {
   /* box-shadow: inset 0 0 5rem rgba(0, 0, 0, .5); */
 }
 
-.cover-container {
-  max-width: 37em;
-}
+/* .cover-container {
+  max-width: 45em;
+} */
 
 
 /*
@@ -127,6 +127,7 @@ body {
 
 
 .searchboxcontainer {
+  max-width: 37em;
   position: relative;
   width: 100%;
   height: 100%;
