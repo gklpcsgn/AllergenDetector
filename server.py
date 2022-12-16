@@ -169,12 +169,14 @@ def add_allergen_to_db(allergenname):
 
 def remove_allergen_from_db(allergenid):
     # first remove from personhasallergen
-    query = 'delete from personhasallergen where allergenid = ' + str(allergenid)
+    query = 'delete from personhasallergen where allergenid = ' + '\'' + str(allergenid) + '\''
     # then remove from food_contains
-    query2 = 'delete from food_contains where allergenid = ' + str(allergenid)
+    query2 = 'delete from food_contains where allergenid = ' + '\'' + str(allergenid) + '\''
     # then remove from allergen
-    query3 = 'delete from food_contains where allergenid = ' + str(allergenid)
+    query3 = 'delete from allergen where allergenid = ' + '\'' + str(allergenid) + '\''
     print(query)
+    print(query2)
+    print(query3)
     engine.execute(query)
     engine.execute(query2)
     engine.execute(query3)

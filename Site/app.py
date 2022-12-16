@@ -539,8 +539,32 @@ def signup():
 @app.route("/admin/deleteallergen", methods=['POST'])
 @login_required
 def deleteallergen():
-    # TODO : implement deleteallergen
-    return redirect('/admin')
+ if request.method == 'POST':
+        if client is None:
+            flash('Connection Error.', category='error')
+            print("Cannot connect to server.")
+            return render_template("index.html")
+
+        message = "k"
+        id = request.form["allergenid"]
+        
+        message += id
+        message = message.encode('utf-8')
+        client.send(message)
+
+        from_server = client.recv(4096)
+        from_server = from_server.decode('utf-8')
+        print("From server : ",from_server)
+
+        if from_server == "ERROR_REMOVE_ALLERGEN":
+            flash('Alerjen silinemedi.', category='error')
+            return redirect(url_for('admin'))
+        
+        if from_server == "SUCCESS_REMOVE_ALLERGEN":
+            flash('Alerjen başarıyla silindi.', category='success')
+            return redirect(url_for('admin'))
+
+        
 
 ############################################################
 ########################METHODS#############################
