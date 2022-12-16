@@ -488,11 +488,15 @@ def signup():
         
         if from_server == "ERROR_SIGNUP":
             flash('Kayıt başarısız.', category='error')
-            return render_template("index.html")
+            return redirect('/signup')
 
         if from_server == "SUCCESS_SIGNUP":
             flash('Kayıt başarılı.', category='success')
             return render_template("index.html")
+
+        if from_server == "EMAIL_ALREADY_EXISTS":
+            flash('Bu e-mail adresi zaten kullanımda.', category='error')
+            return redirect('/signup')
 
 
     return render_template("signup.html")

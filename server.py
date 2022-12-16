@@ -52,6 +52,18 @@ def check_user_from_database(username,password):
     test_data = user.to_json(orient='records')
     return test_data
 
+def check_email_available(email):
+    query = 'select * from person where e_mail = \'' + email + "\'"
+    print(query)
+    user = pd.read_sql_query(query ,con=engine)
+    # if user is empty then email is available
+    print(user.empty)
+    if user.empty:
+        return True
+    else:
+        return False
+    
+
 def get_data_from_db_userid(userid):
     query = 'select * from person where userid = ' + str(userid)
     print(query)
@@ -273,19 +285,23 @@ while True:
             print(data)
             # insert into person(e_mail,personname,personsurname,telephoneno,saltedpassword,height,weight,is_admin) values('tak','Talha','Akbulut',null,'123456',145,40,False)
             e_mail = data[0]["e_mail"]
-            personname = data[0]["personname"]
-            personsurname = data[0]["personsurname"]
-            telephoneno = data[0]["telephoneno"]
-            saltedpassword = data[0]["saltedpassword"]
-            height = data[0]["height"]
-            weight = data[0]["weight"]
-            try:
-                add_user_to_db(e_mail,personname,personsurname,telephoneno,saltedpassword,height,weight,False)
-                test_data = "SUCCESS_SIGNUP"
-            except Exception as e:
-                print('Cannot add user to database.')
-                print(e)
-                test_data = "ERROR_SIGNUP"
+            flag = check_email_available(e_mail)
+            if not flag:
+                test_data="EMAIL_ALREADY_EXISTS"
+            else:
+                personname = data[0]["personname"]
+                personsurname = data[0]["personsurname"]
+                telephoneno = data[0]["telephoneno"]
+                saltedpassword = data[0]["saltedpassword"]
+                height = data[0]["height"]
+                weight = data[0]["weight"]
+                try:
+                    add_user_to_db(e_mail,personname,personsurname,telephoneno,saltedpassword,height,weight,False)
+                    test_data = "SUCCESS_SIGNUP"
+                except Exception as e:
+                    print('Cannot add user to database.')
+                    print(e)
+                    test_data = "ERROR_SIGNUP"
             
 
         # GET FOOD BY NAME
