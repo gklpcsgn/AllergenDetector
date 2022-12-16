@@ -3,7 +3,6 @@
 
 
 <h2>Alerjen Ekle</h2>
-</br>
 <form action="/admin/addallergen" method="POST">
     <div class="form-group">
         <input class="form-control" type="text" name="allergenname" placeholder="Alerjen Adı">
@@ -14,7 +13,6 @@
 <h2>Alerjen Sil</h2>
 <form action="/admin/deleteallergen" method="POST">
     <div class="form-group">
-    <label for="deleteAllergenPick">Alerjenler</label>
     <select id="deleteAllergenPick" class="form-control" name="allergenid">
         {% for allergen in allAllergens.values %}
             <option value="{{ allergen[0] }}">id:{{ allergen[0] }} - {{ allergen[1] }}</option>
