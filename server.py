@@ -167,6 +167,18 @@ def add_allergen_to_db(allergenname):
     print(query)
     engine.execute(query)
 
+def remove_allergen_from_db(allergenid):
+    # first remove from personhasallergen
+    query = 'delete from personhasallergen where allergenid = ' + str(allergenid)
+    # then remove from food_contains
+    query2 = 'delete from food_contains where allergenid = ' + str(allergenid)
+    # then remove from allergen
+    query3 = 'delete from food_contains where allergenid = ' + str(allergenid)
+    print(query)
+    engine.execute(query)
+    engine.execute(query2)
+    engine.execute(query3)
+
 serv = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 serv.bind(("", 1214))
 print("listening")
@@ -321,7 +333,7 @@ while True:
                     print(e)
                     test_data = "ERROR_SIGNUP"
             
-            # ADD ALLERGEN TO DATABASE
+        # ADD ALLERGEN TO DATABASE
         elif data_user.startswith("c"):
             data = json.loads(data_user[1:])
             print(data)
@@ -334,6 +346,16 @@ while True:
                 print(e)
                 test_data = "ERROR_ADD_ALLERGEN"
 
+        # REMOVE ALLERGEN FROM DATABASE
+        elif data_user.startswith("k"):
+            allergenid = data_user[1:]
+            try:
+                remove_allergen_from_db(allergenid)
+                test_data = "SUCCESS_REMOVE_ALLERGEN"
+            except Exception as e:
+                print('Cannot remove allergen from database.')
+                print(e)
+                test_data = "ERROR_REMOVE_ALLERGEN"
 
         
 

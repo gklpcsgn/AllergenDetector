@@ -446,11 +446,13 @@ def delete(barcodeno):
 
     if from_server == "ERROR_REMOVE_ITEM":
         flash('Ürün silinemedi.', category='error')
-        return render_template("index.html")
+        return redirect(url_for('admin'))
 
     if from_server == "SUCCESS_REMOVE_ITEM":
         flash('Ürün başarıyla silindi.', category='success')
-        return render_template("index.html")
+        return redirect(url_for('admin'))
+
+    return redirect(url_for('admin'))
 
 @app.route("/admin/deletesearch", methods=['GET', 'POST'])
 @login_required
@@ -476,7 +478,7 @@ def deletesearch():
 
     if from_server == "ERROR_SEARCH_BY_BARCODE":
         flash('Barkod bulunamadı.', category='error')
-        return render_template("admin.html")
+        return redirect(url_for('admin'))
 
     # return render_template('test.html', test=from_server)
     data = pd.read_json(from_server)
