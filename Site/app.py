@@ -592,9 +592,13 @@ def updateProductScreen():
     data = pd.read_json(from_server)
     allergens = data["allergennames"][0].replace("'","\"")
     allergens = json.loads(allergens)
-    return render_template('updateScreen.html', barcodeno=data['barcodeno'][0], foodname=data['foodname'][0], brand=data['brand'][0], weightvolume=data['weightvolume'][0], ingredients=data['ingredients'][0], fat=data['fat'][0], protein=data['protein'][0], carbs=data['carbs'][0], calorie=data['calorie'][0], allergens=allergens)
+    return render_template('updateScreen.html', barcodeno=data['barcodeno'][0], foodname=data['foodname'][0], brand=data['brand'][0], weightvolume=data['weightvolume'][0], ingredients=data['ingredients'][0], fat=data['fat'][0], protein=data['protein'][0], carbs=data['carbs'][0], calorie=data['calorie'][0], allergens=allergens,allAllergens = get_all_allergens())
 
-
+@app.route("/admin/updateProduct", methods=['POST'])
+@login_required
+def updateProduct():
+    # TODO: Update product
+    return redirect(url_for('admin'))
 
 ############################################################
 ########################METHODS#############################

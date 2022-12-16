@@ -8,7 +8,7 @@
  {% extends "base.html" %} {% block title %} Allergen Detector {% endblock %} {% block content %}
 
 
- <h1 class="cover-heading">{{ brand }}</h1>
+ <!-- <h1 class="cover-heading">{{ brand }}</h1>
  <h2>{{ foodname }}</h2>
  
  <h2>İçerdiği Alerjenler</h2>
@@ -21,9 +21,9 @@
  
  </br>
  
- <h2>Ürün Bilgileri</h2>
+ <h2>Ürün Bilgileri</h2> -->
  
- <ul class="list-group">
+ <!-- <ul class="list-group">
  
  
          <li class="list-group-item d-flex justify-content-between align-items-center">Ürün yağ miktarı: <span>{{ fat
@@ -55,8 +55,73 @@
  
          <li class="list-group-item d-flex justify-content-between align-items-center">Ürün miktarı: <span>{{
                          weightvolume }}</span></li>
- </ul>
+ </ul> -->
  
+ <form action="/admin/updateproduct" method="POST">
+    <div class="form-group">
+        <input class="form-control" type="text" name="productname" placeholder="Ürün Adı" value="{{ foodname }}">
+        <input class="form-control" type="text" name="brand" placeholder="Marka" value="{{ brand }}">
+        <input class="form-control" type="text" name="productbarcode" placeholder="Ürün Barkodu" value="{{ barcodeno }}" disabled>
+        <!-- <label for="addProdAllergenPick">Alerjenler</label> -->
+        <!-- <select id="addProdAllergenPick" class="form-control" multiple name="allergenid">
+        {% for allergen in allAllergens.values %}
+            <option value="{{ allergen[0] }}">{{ allergen[1] }}</option>
+        {% endfor %}
+    </select> -->
+
+        <div class="accordion" id="accordionExample">
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="headingOne">
+                    <button class="accordion-button" type="button" data-bs-toggle="collapse"
+                        data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                        Alerjenler
+                    </button>
+                </h2>
+                <div id="collapseOne" class="accordion-collapse collapse" aria-labelledby="headingOne"
+                    data-bs-parent="#accordionExample">
+                    <div class="accordion-body">
+                        {% for allergen in allAllergens.values %}
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="{{ allergen[1] }}" value="" id="flexCheckDefault" {% if allergen[1] in allergens %} checked {% endif %}>
+                            <label class="form-check-label" for="flexCheckDefault">
+                                {{ allergen[1] }}
+                            </label>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="headingTwo">
+                    <button class="accordion-button" type="button" data-bs-toggle="collapse"
+                        data-bs-target="#collapseTwo" aria-expanded="true" aria-controls="collapseTwo">
+                        Besin Değerleri
+                    </button>
+                </h2>
+                <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo"
+                    data-bs-parent="#accordionExample">
+                    <div class="accordion-body">
+                        <input class="form-control" type="text" name="fat" placeholder="Yağ" value="{{ fat }}"">
+                        <input class="form-control" type="text" name="protein" placeholder="Protein" value="{{ protein }}"">
+                        <input class="form-control" type="text" name="carbs" placeholder="Karbonhidrat" value="{{ carbs }}"">
+                        <input class="form-control" type="text" name="calorie" placeholder="Kalori" value="{{ calorie }}"">
+                        <input class="form-control" type="text" name="weightvolume" placeholder="Ağırlık/Volüm" value="{{ weightvolume }}"">
+                        <input class="form-control" type="text" name="ingredients" placeholder="İçerik" value="{{ ingredients }}"">
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+
+
+
+
+
+        <input class="form-control" type="submit" value="Ekle">
+    </div>
+</form>
  
  
  {% endblock %}
