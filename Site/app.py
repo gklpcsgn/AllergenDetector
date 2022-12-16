@@ -300,6 +300,39 @@ def admin():
     return render_template('admin.html',allAllergens=allAllergens)
 
 
+@app.route("/admin/addallergen", methods=['GET', 'POST'])
+@login_required
+def addallergen():
+    if current_user.is_admin == 0:
+        abort(403)
+    if request.method == 'POST':
+        global client
+        if client is None:
+            flash('Connection Error.', category='error')
+            print("Cannot connect to server.")
+            return render_template("index.html")
+
+        message = "c"
+        allergenname = request.form.get('allergenname')
+        data = {}
+        data['allergenname'] = allergenname
+
+        message += json.dumps(data)
+        message = message.encode('utf-8')
+        client.send(message)
+
+        from_server = client.recv(4096)
+        from_server = from_server.decode('utf-8')
+        print("From server : ",from_server)
+
+        if from_server == "ERROR_ADD_ALLERGEN":
+            flash('Alerjen eklenemedi.', category='error')
+            return redirect(url_for('admin'))
+
+        flash('Alerjen başarıyla eklendi.', category='success')
+        return redirect(url_for('admin'))
+
+
 @app.route("/admin/addproduct", methods=['GET', 'POST'])
 @login_required
 def addproduct():
@@ -342,13 +375,13 @@ def addproduct():
 
         if from_server == "ERROR_ADD_ITEM":
             flash('Ürün eklenemedi.', category='error')
-            return render_template("index.html")
+            redirect(url_for('admin'))
 
         if from_server == "SUCCESS_ADD_ITEM":
             flash('Ürün başarıyla eklendi.', category='success')
-            return render_template("index.html")
+            redirect(url_for('admin'))
         
-    return redirect('admin.html')
+    return redirect(url_for('admin'))
 
 
 @app.route("/profile/updateallergens", methods=['GET', 'POST'])
@@ -441,9 +474,9 @@ def deletesearch():
     from_server = from_server.decode('utf-8')
     print("From server : ",from_server)
 
-    if from_server == "ERROR":
+    if from_server == "ERROR_SEARCH_BY_BARCODE":
         flash('Barkod bulunamadı.', category='error')
-        return render_template("index.html")
+        return render_template("admin.html")
 
     # return render_template('test.html', test=from_server)
     data = pd.read_json(from_server)
