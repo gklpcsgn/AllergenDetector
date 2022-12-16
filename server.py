@@ -52,6 +52,18 @@ def check_user_from_database(username,password):
     test_data = user.to_json(orient='records')
     return test_data
 
+def check_email_available(email):
+    query = 'select * from person where e_mail = \'' + email + "\'"
+    print(query)
+    user = pd.read_sql_query(query ,con=engine)
+    # if user is empty then email is available
+    print(user.empty)
+    if user.empty:
+        return True
+    else:
+        return False
+    
+
 def get_data_from_db_userid(userid):
     query = 'select * from person where userid = ' + str(userid)
     print(query)
@@ -68,7 +80,7 @@ def get_allergens_from_db():
     test_data = allergens.to_json(orient='records')
     return test_data
 
-def write_food_to_db(barcodeno,foodname,brand,weightvolume,ingredients):
+def add_food_to_db(barcodeno,foodname,brand,weightvolume,ingredients):
     query = 'insert into food values (' + '\'' + str(barcodeno) + '\'' + ',\'' + foodname + '\',\'' + brand + '\',\'' + weightvolume + '\',\'' + ingredients + '\')'
     print(query)
     engine.execute(query)
@@ -83,7 +95,6 @@ def write_food_contains_to_db(barcodeno,allergennames):
         query = 'insert into food_contains values (' + '\'' + str(barcodeno) + '\'' + ',' + str(i) + ')'
         print(query)
         engine.execute(query)
-
 
 def write_nutrition_to_db(fat,protein,carbs,calorie,barcodeno):
     query = 'insert into nutrition values (' + str(fat) + ',' + str(protein) + ',' + str(carbs) + ',' + str(calorie) + ',' + '\'' + str(barcodeno) + '\'' + ')'
@@ -108,6 +119,38 @@ def add_user_to_db(e_mail,personname,personsurname,telephoneno,saltedpassword,he
     print(query)
     engine.execute(query)
 
+def update_food_to_db(barcodeno,foodname,brand,weightvolume,ingredients):
+    query = 'update food set foodname = \'' + foodname + '\', brand = \'' + brand + '\', weightvolume = \'' + weightvolume + '\', ingredients = \'' + ingredients + '\' where barcodeno = ' + '\'' + str(barcodeno) + '\'' + ';'
+    print("foodname = " + foodname)
+    print("brand = " + brand)
+    print("weightvolume = " + weightvolume)
+    print("ingredients = " + ingredients)
+    
+    print(query)
+    engine.execute(query)
+    print("Executed update_food_to_db")
+
+def update_nutrition_to_db(fat,protein,carbs,calorie,barcodeno):
+    query = 'update nutrition set fat = ' + str(fat) + ', protein = ' + str(protein) + ', carbs = ' + str(carbs) + ', calorie = ' + str(calorie) + ' where barcodeno = ' + '\'' + str(barcodeno) + '\'' + ';'
+    print(query)
+    engine.execute(query)
+
+
+def update_food_contains_to_db(barcodeno,allergennames):
+    query = 'delete from food_contains where barcodeno = ' + '\'' + str(barcodeno) + '\'' + ';'
+    print(query)
+    engine.execute(query)
+
+    allergenid = []
+    for allergen in allergennames:
+        query = 'select * from allergen where allergenname = \'' + allergen + '\''
+        print(query)
+        allergenid.append(pd.read_sql_query(query,con=engine)['allergenid'].values[0])
+    for i in allergenid:
+        query = 'insert into food_contains values (' + '\'' + str(barcodeno) + '\'' + ',' + str(i) + ')'
+        print(query)
+        engine.execute(query)
+
 def get_user_allergens_from_db(userid):
     query = 'select allergenname from allergen as a join personhasallergen as p on a.allergenid=p.allergenid where p.userid=' + str(userid) + ';'
     print(query)
@@ -129,6 +172,7 @@ def remove_food_from_db(barcodeno):
     engine.execute(query)
     engine.execute(query2)
     engine.execute(query3)
+    
 
 def update_user_allergens(userid,allergennamesstring):
     # delete all user allergens
@@ -147,6 +191,26 @@ def update_user_allergens(userid,allergennamesstring):
         query = 'insert into personhasallergen values (' + str(i) + ',' + str(userid) + ')'
         print(query)
         engine.execute(query)
+
+
+def add_allergen_to_db(allergenname):
+    query = 'insert into allergen(allergenname) values (\'' + allergenname + '\')'
+    print(query)
+    engine.execute(query)
+
+def remove_allergen_from_db(allergenid):
+    # first remove from personhasallergen
+    query = 'delete from personhasallergen where allergenid = ' + '\'' + str(allergenid) + '\''
+    # then remove from food_contains
+    query2 = 'delete from food_contains where allergenid = ' + '\'' + str(allergenid) + '\''
+    # then remove from allergen
+    query3 = 'delete from allergen where allergenid = ' + '\'' + str(allergenid) + '\''
+    print(query)
+    print(query2)
+    print(query3)
+    engine.execute(query)
+    engine.execute(query2)
+    engine.execute(query3)
 
 serv = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 serv.bind(("", 1214))
@@ -172,6 +236,17 @@ while True:
             except Exception as e:
                 print('Cannot get data from database.')
                 test_data = "ERROR_SEARCH_BY_BARCODE"
+
+        # GET FOOD BY NAME
+        elif data_user.startswith("y"):
+            foodname = data_user[1:]
+            try:
+                test_data = get_data_from_db_foodname(foodname)
+                if test_data == "[]":
+                    raise Exception
+            except Exception as e:
+                print('Cannot get data from database.')
+                test_data = "ERROR_SEARCH_BY_NAME"
         
         # CHECK USER FROM DATABASE
         elif data_user.startswith("u"):
@@ -224,7 +299,7 @@ while True:
             allergenlist = data[0]["allergenlist"]
 
             try:
-                write_food_to_db(productbarcode,productname,brand,weightvolume,ingredients)
+                add_food_to_db(productbarcode,productname,brand,weightvolume,ingredients)
                 write_nutrition_to_db(fat,protein,carbs,calorie,productbarcode)
                 write_food_contains_to_db(productbarcode,allergenlist)
 
@@ -273,31 +348,74 @@ while True:
             print(data)
             # insert into person(e_mail,personname,personsurname,telephoneno,saltedpassword,height,weight,is_admin) values('tak','Talha','Akbulut',null,'123456',145,40,False)
             e_mail = data[0]["e_mail"]
-            personname = data[0]["personname"]
-            personsurname = data[0]["personsurname"]
-            telephoneno = data[0]["telephoneno"]
-            saltedpassword = data[0]["saltedpassword"]
-            height = data[0]["height"]
-            weight = data[0]["weight"]
-            try:
-                add_user_to_db(e_mail,personname,personsurname,telephoneno,saltedpassword,height,weight,False)
-                test_data = "SUCCESS_SIGNUP"
-            except Exception as e:
-                print('Cannot add user to database.')
-                print(e)
-                test_data = "ERROR_SIGNUP"
+            flag = check_email_available(e_mail)
+            if not flag:
+                test_data="EMAIL_ALREADY_EXISTS"
+            else:
+                personname = data[0]["personname"]
+                personsurname = data[0]["personsurname"]
+                telephoneno = data[0]["telephoneno"]
+                saltedpassword = data[0]["saltedpassword"]
+                height = data[0]["height"]
+                weight = data[0]["weight"]
+                try:
+                    add_user_to_db(e_mail,personname,personsurname,telephoneno,saltedpassword,height,weight,False)
+                    test_data = "SUCCESS_SIGNUP"
+                except Exception as e:
+                    print('Cannot add user to database.')
+                    print(e)
+                    test_data = "ERROR_SIGNUP"
             
-
-        # GET FOOD BY NAME
-        elif data_user.startswith("y"):
-            foodname = data_user[1:]
+        # ADD ALLERGEN TO DATABASE
+        elif data_user.startswith("c"):
+            data = json.loads(data_user[1:])
+            print(data)
+            allergenname = data["allergenname"]
             try:
-                test_data = get_data_from_db_foodname(foodname)
-                if test_data == "[]":
-                    raise Exception
+                add_allergen_to_db(allergenname)
+                test_data = "SUCCESS_ADD_ALLERGEN"
             except Exception as e:
-                print('Cannot get data from database.')
-                test_data = "ERROR_SEARCH_BY_NAME"
+                print('Cannot add allergen to database.')
+                print(e)
+                test_data = "ERROR_ADD_ALLERGEN"
+
+        # REMOVE ALLERGEN FROM DATABASE
+        elif data_user.startswith("k"):
+            allergenid = data_user[1:]
+            try:
+                remove_allergen_from_db(allergenid)
+                test_data = "SUCCESS_REMOVE_ALLERGEN"
+            except Exception as e:
+                print('Cannot remove allergen from database.')
+                print(e)
+                test_data = "ERROR_REMOVE_ALLERGEN"
+
+        # UPDATE FOOD TO DATABASE
+        elif data_user.startswith("t"):
+            data = json.loads(data_user[1:])
+            print(data)
+            productname = data[0]["productname"]
+            brand = data[0]["brand"]
+            productbarcode = data[0]["productbarcode"]
+            fat = data[0]["fat"]
+            protein = data[0]["protein"]
+            carbs = data[0]["carbs"]
+            calorie = data[0]["calorie"]
+            weightvolume = data[0]["weightvolume"]
+            ingredients = data[0]["ingredients"]
+            allergenlist = data[0]["allergenlist"]
+
+            try:
+                update_food_to_db(productbarcode,productname,brand,weightvolume,ingredients)
+                update_nutrition_to_db(fat,protein,carbs,calorie,productbarcode)
+                update_food_contains_to_db(productbarcode,allergenlist)
+
+                test_data = "SUCCESS_UPDATE_ITEM"
+            except Exception as e:
+                print('Cannot write data to database.')
+                print(e)
+                test_data = "ERROR_UPDATE_ITEM"
+        
 
         test_data = test_data.encode('utf-8')
         conn.send(test_data)
@@ -307,12 +425,6 @@ while True:
     conn.close()
     print ('client disconnected')
     exit()
-
-    # if ctrl+c is pressed end the loop
-    
-
-
-# engine.dispose()
 
 
 

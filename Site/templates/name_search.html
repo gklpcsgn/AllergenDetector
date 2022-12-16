@@ -7,14 +7,38 @@
  -->
  {% extends "base.html" %} {% block title %} Allergen Detector {% endblock %}  {% block content %}
 
+ <div class="searchboxcontainer">
 
- <h1 class="cover-heading">Alerjenleri Bul</h1>
-         <p class="lead">Aradığın ürünün barkodunu aşağıya girerek içerisindeki alerjen maddeleri kolaylıkla bulabilirsin!</p>
- 
- <form class="lead" action="/searchName" method="POST">
-     <input type="string" name="searchName" placeholder="Yemek Adı">
-     <input class="btn btn-lg btn-secondary" type="submit" value="Ara">
- </form>
+
+    <div class="alerjens">
+      <!-- <h1 class="cover-heading">Alerjenleri Bul</h1> -->
+      <p class="lead">Aradığın ürünün ismini aşağıya girerek içerisindeki alerjen maddeleri kolaylıkla bulabilirsin!
+      </p>
+    </div>
+    <!-- <form class="lead" action="/search" method="POST">
+      <input type="text" name="search" placeholder="Barkod No">
+      <input class="btn btn-lg btn-secondary" type="submit" value="Ara">
+  </form> -->
+  
+  
+    <div id="qwe">
+      <form class="searchform" action="/searchName" method="POST">
+        <div class="tb">
+          <div class="td">
+            <input type="text" name="searchName" placeholder="Ürün adı" class="searchtext" required></div>
+          <div class="td" id="s-qwe">
+            <button class="searchbuttonwrapper" type="submit">
+              <div class="searchbutton">
+              <div id="s-circle"></div>
+              <span></span>
+            </div>
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  
+  </div>
  
  
  {% endblock %}

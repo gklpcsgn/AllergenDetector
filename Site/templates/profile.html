@@ -1,9 +1,9 @@
 {% extends "base.html" %} {% block title %} Allergen Detector {% endblock %}  {% block content %}
 
 
-<h1 class="cover-heading">{{ current_user.personname }} {{ current_user.personsurname }}</h1>
+<h3 class="h3 cover-heading">Profil Ayarları</h1>
 
-<h2>Alerjilerim:</h2>
+<!-- <h2>Alerjilerim:</h2> -->
 
 <form action="/profile/updateallergens" method="POST">
     <div class="form-group">
@@ -12,7 +12,7 @@
                 <h2 class="accordion-header" id="headingOne">
                     <button class="accordion-button" type="button" data-bs-toggle="collapse"
                         data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
-                        Alerjenler
+                        Alerjenlerim
                     </button>
                 </h2>
                 <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne"

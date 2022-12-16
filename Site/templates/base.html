@@ -32,45 +32,46 @@
             <a class="nav-link {% if request.path == '/name_search' %}active{% endif %}" href="/name_search"><i class="fa fa-search" aria-hidden="true"></i> Ürün Adıyla Arama</a>
             <!-- <a class="nav-link" href="/signin">Giriş Yap</a> -->
             {% if current_user.is_authenticated %}
-              {% if current_user.is_admin %}
-                <a class="nav-link {% if request.path == '/admin' %}active{% endif %}" href="/admin"><i class="fa fa-user" aria-hidden="true"></i> Admin</a>
-              {% endif %}
 
-                <a class="nav-link {% if request.path == '/profile' %}active{% endif %}" href="/profile"><i class="fa fa-user" aria-hidden="true"></i> Profil</a>
+                <a class="nav-link {% if request.path == '/profile' %}active{% endif %}" href="/profile"><i class="fa fa-user" aria-hidden="true"></i> {{ current_user.personname }}</a>
 
             {% endif %}
             {% if current_user.is_authenticated %}
+            {% if current_user.is_admin %}
+              <a class="nav-link {% if request.path == '/admin' %}active{% endif %}" href="/admin"><i class="fa fa-user" aria-hidden="true"></i> Yönetim Paneli</a>
+            {% endif %}
               <a class="nav-link" href="/logout"><i class="fa fa-sign-out" aria-hidden="true"></i> Çıkış Yap</a>
             {% else %}
               <a class="nav-link {% if request.path == '/signin' or request.path == '/signup' %}active{% endif %} " href="/signin"><i class="fa fa-sign-in" aria-hidden="true"></i> Giriş Yap</a>
             {% endif %}
           </nav>
+          {% with messages = get_flashed_messages(with_categories=true) %}
+    
+          {% if messages %}
+              {% for category, message in messages %}
+                  {% if category == 'error' %}
+                      <div class="alert alert-danger alert-dismissible fade show " role="alert">
+                          <div class= "container">
+                      {{ message }}
+                      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                          </div>
+                      </div>
+                  {% else %}
+                      <div class="alert alert-success alert-dismissible fade show " role="alert" style="margin-top: -4rem;">
+                          <div class= "container">
+                      {{ message }}
+                      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                          </div>
+                      </div>
+                  {% endif %}
+  
+              {% endfor %}
+          {% endif %}
+      {% endwith %} 
         </div>
       </header>
       
-      {% with messages = get_flashed_messages(with_categories=true) %}
-    
-        {% if messages %}
-            {% for category, message in messages %}
-                {% if category == 'error' %}
-                    <div class="alert alert-danger alert-dismissible fade show " role="alert">
-                        <div class= "container">
-                    {{ message }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                        </div>
-                    </div>
-                {% else %}
-                    <div class="alert alert-success alert-dismissible fade show " role="alert">
-                        <div class= "container">
-                    {{ message }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                        </div>
-                    </div>
-                {% endif %}
-
-            {% endfor %}
-        {% endif %}
-    {% endwith %} 
+     
 
 
 
