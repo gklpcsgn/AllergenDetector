@@ -61,7 +61,7 @@
     <div class="form-group">
         <input class="form-control" type="text" name="productname" placeholder="Ürün Adı" value="{{ foodname }}">
         <input class="form-control" type="text" name="brand" placeholder="Marka" value="{{ brand }}">
-        <input class="form-control" type="text" name="productbarcode" placeholder="Ürün Barkodu" value="{{ barcodeno }}" disabled>
+        <input class="form-control" type="hidden" name="productbarcode" placeholder="Ürün Barkodu" value="{{ barcodeno }}" ><!-- IF YOU FIND THIS DO NOT CHANGE PLEASE -->
         <!-- <label for="addProdAllergenPick">Alerjenler</label> -->
         <!-- <select id="addProdAllergenPick" class="form-control" multiple name="allergenid">
         {% for allergen in allAllergens.values %}

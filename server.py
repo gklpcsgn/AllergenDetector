@@ -80,7 +80,7 @@ def get_allergens_from_db():
     test_data = allergens.to_json(orient='records')
     return test_data
 
-def write_food_to_db(barcodeno,foodname,brand,weightvolume,ingredients):
+def add_food_to_db(barcodeno,foodname,brand,weightvolume,ingredients):
     query = 'insert into food values (' + '\'' + str(barcodeno) + '\'' + ',\'' + foodname + '\',\'' + brand + '\',\'' + weightvolume + '\',\'' + ingredients + '\')'
     print(query)
     engine.execute(query)
@@ -95,7 +95,6 @@ def write_food_contains_to_db(barcodeno,allergennames):
         query = 'insert into food_contains values (' + '\'' + str(barcodeno) + '\'' + ',' + str(i) + ')'
         print(query)
         engine.execute(query)
-
 
 def write_nutrition_to_db(fat,protein,carbs,calorie,barcodeno):
     query = 'insert into nutrition values (' + str(fat) + ',' + str(protein) + ',' + str(carbs) + ',' + str(calorie) + ',' + '\'' + str(barcodeno) + '\'' + ')'
@@ -119,6 +118,38 @@ def add_user_to_db(e_mail,personname,personsurname,telephoneno,saltedpassword,he
     query = 'insert into person(e_mail,personname,personsurname,telephoneno,saltedpassword,height,weight,is_admin) values (\'' + e_mail + '\',\'' + personname + '\',\'' + personsurname + '\',' + telephoneno + ',\'' + saltedpassword + '\',' + height + ',' + weight + ',' + str(is_admin) + ')'
     print(query)
     engine.execute(query)
+
+def update_food_to_db(barcodeno,foodname,brand,weightvolume,ingredients):
+    query = 'update food set foodname = \'' + foodname + '\', brand = \'' + brand + '\', weightvolume = \'' + weightvolume + '\', ingredients = \'' + ingredients + '\' where barcodeno = ' + '\'' + str(barcodeno) + '\'' + ';'
+    print("foodname = " + foodname)
+    print("brand = " + brand)
+    print("weightvolume = " + weightvolume)
+    print("ingredients = " + ingredients)
+    
+    print(query)
+    engine.execute(query)
+    print("Executed update_food_to_db")
+
+def update_nutrition_to_db(fat,protein,carbs,calorie,barcodeno):
+    query = 'update nutrition set fat = ' + str(fat) + ', protein = ' + str(protein) + ', carbs = ' + str(carbs) + ', calorie = ' + str(calorie) + ' where barcodeno = ' + '\'' + str(barcodeno) + '\'' + ';'
+    print(query)
+    engine.execute(query)
+
+
+def update_food_contains_to_db(barcodeno,allergennames):
+    query = 'delete from food_contains where barcodeno = ' + '\'' + str(barcodeno) + '\'' + ';'
+    print(query)
+    engine.execute(query)
+
+    allergenid = []
+    for allergen in allergennames:
+        query = 'select * from allergen where allergenname = \'' + allergen + '\''
+        print(query)
+        allergenid.append(pd.read_sql_query(query,con=engine)['allergenid'].values[0])
+    for i in allergenid:
+        query = 'insert into food_contains values (' + '\'' + str(barcodeno) + '\'' + ',' + str(i) + ')'
+        print(query)
+        engine.execute(query)
 
 def get_user_allergens_from_db(userid):
     query = 'select allergenname from allergen as a join personhasallergen as p on a.allergenid=p.allergenid where p.userid=' + str(userid) + ';'
@@ -268,7 +299,7 @@ while True:
             allergenlist = data[0]["allergenlist"]
 
             try:
-                write_food_to_db(productbarcode,productname,brand,weightvolume,ingredients)
+                add_food_to_db(productbarcode,productname,brand,weightvolume,ingredients)
                 write_nutrition_to_db(fat,protein,carbs,calorie,productbarcode)
                 write_food_contains_to_db(productbarcode,allergenlist)
 
@@ -359,6 +390,31 @@ while True:
                 print(e)
                 test_data = "ERROR_REMOVE_ALLERGEN"
 
+        # UPDATE FOOD TO DATABASE
+        elif data_user.startswith("t"):
+            data = json.loads(data_user[1:])
+            print(data)
+            productname = data[0]["productname"]
+            brand = data[0]["brand"]
+            productbarcode = data[0]["productbarcode"]
+            fat = data[0]["fat"]
+            protein = data[0]["protein"]
+            carbs = data[0]["carbs"]
+            calorie = data[0]["calorie"]
+            weightvolume = data[0]["weightvolume"]
+            ingredients = data[0]["ingredients"]
+            allergenlist = data[0]["allergenlist"]
+
+            try:
+                update_food_to_db(productbarcode,productname,brand,weightvolume,ingredients)
+                update_nutrition_to_db(fat,protein,carbs,calorie,productbarcode)
+                update_food_contains_to_db(productbarcode,allergenlist)
+
+                test_data = "SUCCESS_UPDATE_ITEM"
+            except Exception as e:
+                print('Cannot write data to database.')
+                print(e)
+                test_data = "ERROR_UPDATE_ITEM"
         
 
         test_data = test_data.encode('utf-8')
@@ -369,12 +425,6 @@ while True:
     conn.close()
     print ('client disconnected')
     exit()
-
-    # if ctrl+c is pressed end the loop
-    
-
-
-# engine.dispose()
 
 
 
