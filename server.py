@@ -141,6 +141,7 @@ def remove_food_from_db(barcodeno):
     engine.execute(query)
     engine.execute(query2)
     engine.execute(query3)
+    
 
 def update_user_allergens(userid,allergennamesstring):
     # delete all user allergens
@@ -159,6 +160,12 @@ def update_user_allergens(userid,allergennamesstring):
         query = 'insert into personhasallergen values (' + str(i) + ',' + str(userid) + ')'
         print(query)
         engine.execute(query)
+
+
+def add_allergen_to_db(allergenname):
+    query = 'insert into allergen(allergenname) values (\'' + allergenname + '\')'
+    print(query)
+    engine.execute(query)
 
 serv = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 serv.bind(("", 1214))
@@ -184,6 +191,17 @@ while True:
             except Exception as e:
                 print('Cannot get data from database.')
                 test_data = "ERROR_SEARCH_BY_BARCODE"
+
+        # GET FOOD BY NAME
+        elif data_user.startswith("y"):
+            foodname = data_user[1:]
+            try:
+                test_data = get_data_from_db_foodname(foodname)
+                if test_data == "[]":
+                    raise Exception
+            except Exception as e:
+                print('Cannot get data from database.')
+                test_data = "ERROR_SEARCH_BY_NAME"
         
         # CHECK USER FROM DATABASE
         elif data_user.startswith("u"):
@@ -303,17 +321,21 @@ while True:
                     print(e)
                     test_data = "ERROR_SIGNUP"
             
-
-        # GET FOOD BY NAME
-        elif data_user.startswith("y"):
-            foodname = data_user[1:]
+            # ADD ALLERGEN TO DATABASE
+        elif data_user.startswith("c"):
+            data = json.loads(data_user[1:])
+            print(data)
+            allergenname = data["allergenname"]
             try:
-                test_data = get_data_from_db_foodname(foodname)
-                if test_data == "[]":
-                    raise Exception
+                add_allergen_to_db(allergenname)
+                test_data = "SUCCESS_ADD_ALLERGEN"
             except Exception as e:
-                print('Cannot get data from database.')
-                test_data = "ERROR_SEARCH_BY_NAME"
+                print('Cannot add allergen to database.')
+                print(e)
+                test_data = "ERROR_ADD_ALLERGEN"
+
+
+        
 
         test_data = test_data.encode('utf-8')
         conn.send(test_data)
