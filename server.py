@@ -4,7 +4,7 @@ import sqlalchemy as sal
 from sqlalchemy import create_engine
 import socket
 import json
-
+import hashlib
 
 
 
@@ -17,6 +17,11 @@ except Exception as e:
     print('Connection Error.')
     exit()
 
+
+def encrypt_string(hash_string):
+    sha_signature = \
+        hashlib.sha256(hash_string.encode()).hexdigest()
+    return sha_signature
 
 def get_data_from_db_barcodeno(barcodeno):
     # select from allergen table
@@ -253,6 +258,7 @@ while True:
             data = json.loads(data_user[1:])
             username = data["username"]
             password = data["password"]
+            password = encrypt_string(str(password))
             try:
                 test_data = check_user_from_database(username,password)
                 if test_data == "[]":
@@ -355,7 +361,8 @@ while True:
                 personname = data[0]["personname"]
                 personsurname = data[0]["personsurname"]
                 telephoneno = data[0]["telephoneno"]
-                saltedpassword = data[0]["saltedpassword"]
+                password = data[0]["saltedpassword"]
+                saltedpassword = encrypt_string(str(password))
                 height = data[0]["height"]
                 weight = data[0]["weight"]
                 try:

@@ -10,6 +10,6 @@
 - [x] alerjen silme id kaldırılacak
 - [x] result ekranında genişleme
 - [x] kayıt ekranı eposta requirementi eklenmeli
-- [ ] şifre salted olacak (copilot: bcrypt)sha256
+- [x] şifre salted olacak (copilot: bcrypt)sha256
 - [ ] kayıt olmada e posta kontrolü yapılacak
 - [ ] kullanıcıadı şifre değiştirme eklenecek
