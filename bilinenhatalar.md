@@ -11,5 +11,5 @@
 - [x] result ekranında genişleme
 - [x] kayıt ekranı eposta requirementi eklenmeli
 - [x] şifre salted olacak (copilot: bcrypt)sha256
-- [ ] kayıt olmada e posta kontrolü yapılacak
+- [x] kayıt olmada e posta kontrolü yapılacak
 - [ ] kullanıcıadı şifre değiştirme eklenecek
