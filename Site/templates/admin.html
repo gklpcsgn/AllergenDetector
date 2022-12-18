@@ -5,7 +5,7 @@
 <h2>Alerjen Ekle</h2>
 <form action="/admin/addallergen" method="POST">
     <div class="form-group">
-        <input class="form-control" type="text" name="allergenname" placeholder="Alerjen Adı">
+        <input class="form-control" type="text" name="allergenname" placeholder="Alerjen Adı" required>
         <input class="form-control" type="submit" value="Ekle">
     </div>
 </form>
@@ -15,7 +15,7 @@
     <div class="form-group">
     <select id="deleteAllergenPick" class="form-control" name="allergenid">
         {% for allergen in allAllergens.values %}
-            <option value="{{ allergen[0] }}">id:{{ allergen[0] }} - {{ allergen[1] }}</option>
+            <option value="{{ allergen[0] }}">{{ allergen[1] }}</option>
         {% endfor %}
     </select>
     <input class="form-control" type="submit" value="Sil">
@@ -69,12 +69,12 @@
                 <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo"
                     data-bs-parent="#accordionExample">
                     <div class="accordion-body">
-                        <input class="form-control" type="text" name="fat" placeholder="Yağ">
-                        <input class="form-control" type="text" name="protein" placeholder="Protein">
-                        <input class="form-control" type="text" name="carbs" placeholder="Karbonhidrat">
-                        <input class="form-control" type="text" name="calorie" placeholder="Kalori">
-                        <input class="form-control" type="text" name="weightvolume" placeholder="Ağırlık/Volüm">
-                        <input class="form-control" type="text" name="ingredients" placeholder="İçerik">
+                        <input class="form-control" type="text" name="fat" placeholder="Yağ" required>
+                        <input class="form-control" type="text" name="protein" placeholder="Protein" required>
+                        <input class="form-control" type="text" name="carbs" placeholder="Karbonhidrat" required>
+                        <input class="form-control" type="text" name="calorie" placeholder="Kalori" required>
+                        <input class="form-control" type="text" name="weightvolume" placeholder="Ağırlık/Volüm" required>
+                        <input class="form-control" type="text" name="ingredients" placeholder="İçerik" required>
                     </div>
                 </div>
             </div>
@@ -93,7 +93,7 @@
 <h2>Ürün Güncelle</h2>
 <form action="/admin/updateProductScreen" method="POST">
     <div class="form-group">
-        <input class="form-control" type="text" name="barkod" placeholder="Ürün Barkodu">
+        <input class="form-control" type="text" name="barkod" placeholder="Ürün Barkodu" required>
         <input class="form-control" type="submit" value="Düzenle">
     </div>
     <br/>
@@ -101,7 +101,7 @@
 <h2>Ürün Sil</h2>
 <form action="/admin/deletesearch" method="POST">
     <div class="form-group">
-        <input class="form-control" type="text" name="barkod" placeholder="Ürün Barkodu">
+        <input class="form-control" type="text" name="barkod" placeholder="Ürün Barkodu" required>
         <input class="form-control" type="submit" value="Ara">
     </div>
     <br/>
